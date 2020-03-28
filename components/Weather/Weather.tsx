@@ -170,9 +170,9 @@ export default class Weather extends React.Component<{ weather: any }> {
             const backgroundSVG = `
                 <svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
                     <defs>
-                        <linearGradient id="grad1" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <linearGradient id="grad1" x1="0%" y1="0%" x2="0%" y2="100%" gradientTransform="rotate(20)">
                             <stop offset="0%" style="stop-color:${weatherCondition.gradientColorStart}; stop-opacity:1" />
-                            <stop offset="70%" style="stop-color:${weatherCondition.gradientColorEnd}; stop-opacity:1" />
+                            <stop offset="80%" style="stop-color:${weatherCondition.gradientColorEnd}; stop-opacity:1" />
                         </linearGradient>
                     </defs>
                     <rect width="${width}" height="${height}" fill="url(#grad1)" />
