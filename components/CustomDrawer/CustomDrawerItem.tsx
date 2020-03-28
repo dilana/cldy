@@ -28,6 +28,7 @@ export default class CustomDrawerItem extends React.Component<{ children: Requir
             paddingVertical: 10,
             marginVertical: 0,
             width: '100%',
+            overflow: 'hidden'
         },
         containerActive: {
             backgroundColor: 'rgba(203,37,70,0.2)',
@@ -47,9 +48,11 @@ export default class CustomDrawerItem extends React.Component<{ children: Requir
         leftBar: {
             position: 'absolute',
             left: 0,
+            top: 0,
+            bottom: 0,
             width: 4,
-            height: '160%',
-            backgroundColor: 'red',
+            height: '300%',
+            backgroundColor: '#FFFFFF',
         },
         divider: {
             backgroundColor: 'rgba(255, 255, 255, .3)',
@@ -61,7 +64,8 @@ export default class CustomDrawerItem extends React.Component<{ children: Requir
         const containerStyles = isActive ? [this.styles.container, this.styles.containerActive] : [this.styles.container];
         return (
             <TouchableOpacity onPress={onPress}>
-                <View style={containerStyles}>{isActive && <View style={this.styles.leftBar}/>}
+                <View style={containerStyles}>
+                    {isActive && <View style={this.styles.leftBar}/>}
                     <Icon name={iconName} color={iconColor || '#FFF'} type={'foundation'} size={18} containerStyle={this.styles.icon}/>
                     <Text style={this.styles.label}>{label}</Text>
                 </View>

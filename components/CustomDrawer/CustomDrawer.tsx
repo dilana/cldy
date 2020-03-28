@@ -6,12 +6,12 @@ import 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-navigation';
 import CustomDrawerItem from './CustomDrawerItem';
 
-export default class CustomDrawer extends React.Component<{ navigation: any }> {
+export default class CustomDrawer extends React.Component<{ navigation: any, state: any }> {
     private styles = StyleSheet.create({
         container: {
             flex: 1,
             justifyContent: 'flex-start',
-            backgroundColor: 'rgba(26,26,29,1)',
+            backgroundColor: 'rgba(26, 26, 29, 1)',
             width: '100%',
             paddingTop: '10%',
         },
@@ -27,6 +27,7 @@ export default class CustomDrawer extends React.Component<{ navigation: any }> {
     });
 
     render() {
+        const currentRoute = this.props.state.routeNames[this.props.state.index];
         return (
             <View style={this.styles.container}>
                 <ScrollView>
@@ -36,13 +37,13 @@ export default class CustomDrawer extends React.Component<{ navigation: any }> {
                         </View>
 
                         <DrawerContentScrollView {...this.props}>
-                            <CustomDrawerItem label={'Home'} iconName={'cloud'} isActive={true} iconColor={'#FFF'} onPress={() => {
+                            <CustomDrawerItem label={'Home'} iconName={'cloud'} isActive={currentRoute === 'Main'} iconColor={'#FFF'} onPress={() => {
                                 this.props.navigation.navigate('Main');
                             }}/>
-                            <CustomDrawerItem label={'Settings'} iconName={'widget'} isActive={false} iconColor={'#FFF'} onPress={() => {
+                            <CustomDrawerItem label={'Settings'} iconName={'widget'} isActive={currentRoute === 'Settings'} iconColor={'#FFF'} onPress={() => {
                                 this.props.navigation.navigate('Settings');
                             }}/>
-                            <CustomDrawerItem label={'Add'} iconName={'plus'} isActive={false} iconColor={'#FFF'} onPress={() => {
+                            <CustomDrawerItem label={'Add'} iconName={'plus'} isActive={currentRoute === 'Add'} iconColor={'#FFF'} onPress={() => {
                                 this.props.navigation.navigate('Add');
                             }}/>
                         </DrawerContentScrollView>
