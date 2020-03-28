@@ -247,3 +247,5 @@ Temporary Items
 
 .sass-cache
 .idea
+
+./utils/WeatherAPIKey.tsx

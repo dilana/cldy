@@ -1,7 +1,7 @@
 import { SplashScreen } from 'expo';
 import moment from 'moment';
 import React, { Component } from 'react';
-import { StatusBar, StyleSheet, Text, View } from 'react-native';
+import { StatusBar, StyleSheet, View } from 'react-native';
 import Swiper from 'react-native-swiper';
 import { NavigationInjectedProps, withNavigation } from 'react-navigation';
 import { Countries } from '../../utils/Countries';
@@ -82,7 +82,6 @@ class Main extends Component<NavigationInjectedProps> {
             }, error => {
                 this.setState({error: 'Error Getting Weather Conditions'});
             },
-
         );
     }
 

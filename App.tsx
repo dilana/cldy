@@ -1,15 +1,13 @@
-import { createDrawerNavigator, DrawerItemList } from '@react-navigation/drawer';
+import { createDrawerNavigator } from '@react-navigation/drawer';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { SplashScreen } from 'expo';
 import * as Font from 'expo-font';
 import React from 'react';
-import { StyleSheet, Text, View, TouchableNativeFeedback, Switch } from 'react-native';
-import { Avatar, Divider, Icon } from 'react-native-elements';
+import { StyleSheet, View } from 'react-native';
+import { Icon } from 'react-native-elements';
 import 'react-native-gesture-handler';
-import { ScrollView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { SafeAreaView } from 'react-navigation';
 import Add from './components/Add/Add';
 import CustomDrawer from './components/CustomDrawer/CustomDrawer';
 import Main from './components/Main/Main';
@@ -68,7 +66,7 @@ export default class App extends React.Component {
             fontFamily: 'Lato-Regular',
         },
         drawer: {
-            backgroundColor: '#c6cbef',
+            backgroundColor: 'rgba(26, 26, 29, 1)',
             width: 240,
         },
     });
@@ -93,7 +91,7 @@ export default class App extends React.Component {
             return (
                 <SafeAreaProvider>
                     <NavigationContainer>
-                        <Drawer.Navigator initialRouteName="Home" drawerStyle={this.styles.drawer} drawerContent={props => <CustomDrawer {...props} />}>
+                        <Drawer.Navigator initialRouteName="Home" drawerStyle={this.styles.drawer} drawerContent={props => <CustomDrawer {...props} />} backBehavior='initialRoute' hideStatusBar={true}>
                             <Drawer.Screen name="Home" component={this.MainStack}/>
                             <Drawer.Screen name="Settings" component={this.SettingsStack}/>
                             <Drawer.Screen name="Add" component={this.AddStack}/>
