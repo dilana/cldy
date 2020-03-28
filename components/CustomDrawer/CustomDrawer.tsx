@@ -37,7 +37,7 @@ export default class CustomDrawer extends React.Component<{ navigation: any, sta
                         </View>
 
                         <DrawerContentScrollView {...this.props}>
-                            <CustomDrawerItem label={'Home'} iconName={'cloud'} isActive={currentRoute === 'Main'} iconColor={'#FFF'} onPress={() => {
+                            <CustomDrawerItem label={'Home'} iconName={'cloud'} isActive={currentRoute === 'Home'} iconColor={'#FFF'} onPress={() => {
                                 this.props.navigation.navigate('Main');
                             }}/>
                             <CustomDrawerItem label={'Settings'} iconName={'widget'} isActive={currentRoute === 'Settings'} iconColor={'#FFF'} onPress={() => {
