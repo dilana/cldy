@@ -63,6 +63,19 @@ class Main extends Component<NavigationInjectedProps> {
         error: undefined,
     };
 
+    private styles = StyleSheet.create({
+        container: {
+            flex: 1,
+            backgroundColor: '#FFFDE4',
+        },
+        loadingContainer: {
+            flex: 1,
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: '#FFFDE4',
+        },
+    });
+
     componentDidMount() {
         navigator.geolocation.getCurrentPosition(position => {
                 this.fetchWeather(position.coords.latitude, position.coords.longitude);
@@ -202,7 +215,7 @@ class Main extends Component<NavigationInjectedProps> {
                     isLoading: false,
                 }));
 
-                setTimeout(() => SplashScreen.hide(), 0);
+                setTimeout(() => SplashScreen.hide(), 222);
             });
         });
     }
@@ -211,10 +224,10 @@ class Main extends Component<NavigationInjectedProps> {
         const {isLoading, weather} = this.state;
 
         return (
-            <View style={styles.container}>
+            <View style={this.styles.container}>
                 <StatusBar translucent barStyle="light-content"/>
                 {isLoading ? (
-                    <View style={styles.loadingContainer}/>
+                    <View style={this.styles.loadingContainer}/>
                 ) : (
                     <Swiper showsButtons={false} loop={false}>
                         <Weather weather={weather}/>
@@ -226,18 +239,5 @@ class Main extends Component<NavigationInjectedProps> {
         );
     }
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#FFFDE4',
-    },
-    loadingContainer: {
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: '#FFFDE4',
-    },
-});
 
 export default withNavigation(Main);
