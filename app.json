@@ -1,0 +1,36 @@
+{
+  "expo": {
+    "name": "Cldy",
+    "slug": "cldy",
+    "privacy": "unlisted",
+    "sdkVersion": "36.0.0",
+    "platforms": [
+      "ios",
+      "android"
+    ],
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#52A5DA"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "in.dilana.cldy",
+      "buildNumber": "1.0.0"
+    },
+    "android": {
+      "package": "in.dilana.cldy",
+      "versionCode": 1
+    },
+    "description": "Cldy weather app"
+  }
+}
