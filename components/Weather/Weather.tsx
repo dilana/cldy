@@ -21,7 +21,7 @@ export default class Weather extends React.Component<{ weather: any }> {
         weatherContainer: {
             flex: 1,
             paddingTop: getStatusBarHeight(false) + 40 + 15,
-            paddingBottom: 15,
+            paddingBottom: 15 + 25,
             paddingLeft: 10,
             paddingRight: 10,
         },
@@ -46,15 +46,19 @@ export default class Weather extends React.Component<{ weather: any }> {
             flexDirection: 'row',
             alignItems: 'center',
             justifyContent: 'center',
+            paddingBottom: 10,
         },
         tempHighLowContainer: {
             flex: 0,
             flexDirection: 'column',
             alignItems: 'center',
-            justifyContent: 'flex-start',
+            justifyContent: 'center',
+            paddingBottom: 3,
         },
         tempText: {
             fontSize: 166,
+            lineHeight: 154,
+            textAlign: 'justify',
             color: '#fff',
             fontFamily: 'Lato-Hairline',
             paddingRight: 30,
@@ -258,7 +262,9 @@ export default class Weather extends React.Component<{ weather: any }> {
                     </View>
 
                     <View style={this.styles.tempContainer}>
-                        <Text style={this.styles.tempText}>{this.props.weather.temperature}˚</Text>
+                        <View style={{height: 120, overflow: 'hidden'}}>
+                            <Text style={this.styles.tempText}>{this.props.weather.temperature}˚</Text>
+                        </View>
 
                         <View style={this.styles.tempHighLowContainer}>
                             <Text style={this.styles.tempHighLowText}>{this.props.weather.tempMax}˚ C</Text>
