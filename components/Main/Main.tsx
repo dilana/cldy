@@ -228,7 +228,7 @@ class Main extends Component<NavigationInjectedProps> {
                 {isLoading ? (
                     <View style={this.styles.loadingContainer}/>
                 ) : (
-                    <Swiper showsButtons={false} loop={false}>
+                    <Swiper showsButtons={false} loop={false} autoplay={false} dotColor={'rgba(255, 255, 255, 0.3)'} activeDotColor={'rgba(255, 255, 255, 0.9)'}>
                         <Weather weather={weather}/>
                         <Weather weather={weather}/>
                         <Weather weather={weather}/>
