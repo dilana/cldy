@@ -31,7 +31,7 @@ export default class CustomDrawerItem extends React.Component<{ children: Requir
             overflow: 'hidden'
         },
         containerActive: {
-            backgroundColor: 'rgba(203,37,70,0.2)',
+            // backgroundColor: 'rgba(203,37,70,0.2)',
         },
         label: {
             fontFamily: 'Lato-Regular',
@@ -48,14 +48,14 @@ export default class CustomDrawerItem extends React.Component<{ children: Requir
         leftBar: {
             position: 'absolute',
             left: 0,
-            top: 0,
-            bottom: 0,
+            top: 7,
+            bottom: 7,
             width: 4,
-            height: '300%',
+            height: 31,
             backgroundColor: '#FFFFFF',
         },
         divider: {
-            backgroundColor: 'rgba(255, 255, 255, .3)',
+            backgroundColor: '#232125',
         },
     });
 
