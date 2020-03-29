@@ -4,7 +4,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { SplashScreen } from 'expo';
 import * as Font from 'expo-font';
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 import 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -20,7 +20,9 @@ export default class App extends React.Component {
         return (
             <Stack.Navigator>
                 <Stack.Screen name="Main" component={Main} options={({route, navigation}) => ({
-                    headerLeft: () => <View style={{paddingLeft: 10}}><Icon name="menu" color={'#FFF'} size={30} onPress={() => navigation.openDrawer()}/></View>,
+                    headerLeft: () => <View style={{paddingLeft: 10}}>
+                        <Icon name="menu" color={'#FFF'} size={30} onPress={() => navigation.openDrawer()} underlayColor={'transparent'} activeOpacity={0.8}/>
+                    </View>,
                     title: 'Weather',
                     headerTransparent: true,
                     headerTitleStyle: this.styles.headerTitle,
@@ -34,7 +36,15 @@ export default class App extends React.Component {
     private SettingsStack = () => {
         return (
             <Stack.Navigator>
-                <Stack.Screen name="Settings" component={Settings} options={{headerTransparent: true, headerTitleStyle: this.styles.headerTitle}}/>
+                <Stack.Screen name="Settings" component={Settings} options={({route, navigation}) => ({
+                    headerLeft: () => <View style={{paddingLeft: 10, flex: 0, flexDirection: 'row',  alignItems: 'center', justifyContent: 'center',}}>
+                        <Icon name="chevron-left" type={'material'} color={'#FFF'} size={30} onPress={() => navigation.goBack()} underlayColor={'transparent'} activeOpacity={0.8}/>
+                        <Text style={this.styles.headerTitle} onPress={() => navigation.goBack()}>Back</Text>
+                    </View>,
+                    title: 'Settings',
+                    headerTransparent: true,
+                    headerTitleStyle: this.styles.headerTitle,
+                })}/>
             </Stack.Navigator>
         );
     };
