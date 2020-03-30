@@ -1,13 +1,17 @@
 import { DrawerContentScrollView } from '@react-navigation/drawer';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { ScrollView } from 'react-native-gesture-handler';
 import 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-navigation';
 import CustomDrawerItem from './CustomDrawerItem';
 
 export default class CustomDrawer extends React.Component<{ navigation: any, state: any }> {
     private styles = StyleSheet.create({
+        safeArea: {
+            flex: 1,
+            flexDirection: 'column',
+            backgroundColor: '#010101',
+        },
         container: {
             flex: 1,
             justifyContent: 'flex-start',
@@ -15,8 +19,22 @@ export default class CustomDrawer extends React.Component<{ navigation: any, sta
             width: '100%',
             // paddingTop: '10%',
         },
+        containerInner: {
+            flex: 1,
+            backgroundColor: '#1B1B1E',
+        },
+        containerInnerLogo: {
+            flex: 0,
+            backgroundColor: '#010101',
+        },
         navigationContainer: {
-            marginBottom: 30,
+            flex: 1,
+        },
+        bottomContainer: {
+            flex: 0,
+        },
+        createdBy: {
+            color: '#FFF', alignSelf: 'center', alignContent: 'center', paddingVertical: 10,
         },
         divider: {
             alignSelf: 'center',
@@ -29,36 +47,34 @@ export default class CustomDrawer extends React.Component<{ navigation: any, sta
     render() {
         const currentRoute = this.props.state.routeNames[this.props.state.index];
         return (
-            <SafeAreaView style={{flex: 1, flexDirection: 'column', backgroundColor: '#010101'}} forceInset={{top: 'always', horizontal: 'never'}}>
+            <SafeAreaView style={this.styles.safeArea} forceInset={{top: 'always', horizontal: 'never'}}>
                 <View style={this.styles.container}>
-                    {/*<ScrollView style={{flex: 1, backgroundColor: ''}}>*/}
-                        <View style={{flex: 1, backgroundColor: '#1B1B1E'}}>
-                            <View style={{flex: 0, backgroundColor: '#010101'}}>
-                                <Text style={{color: '#FFF'}}>LOGOTO tuka</Text>
-                                <Text style={{color: '#FFF'}}>LOGOTO tuka</Text>
-                                <Text style={{color: '#FFF'}}>LOGOTO tuka</Text>
-                                <Text style={{color: '#FFF'}}>LOGOTO tuka</Text>
-                            </View>
-
-                            <View style={{flex: 1}}>
-                                <DrawerContentScrollView {...this.props}>
-                                    <CustomDrawerItem label={'Home'} iconName={'cloud'} isActive={currentRoute === 'Home'} iconColor={'#FFF'} onPress={() => {
-                                        this.props.navigation.navigate('Main');
-                                    }}/>
-                                    <CustomDrawerItem label={'Settings'} iconName={'widget'} isActive={currentRoute === 'Settings'} iconColor={'#FFF'} onPress={() => {
-                                        this.props.navigation.navigate('Settings');
-                                    }}/>
-                                    <CustomDrawerItem label={'Add'} iconName={'plus'} isActive={currentRoute === 'Add'} iconColor={'#FFF'} onPress={() => {
-                                        this.props.navigation.navigate('Add');
-                                    }}/>
-                                </DrawerContentScrollView>
-                            </View>
-
-                            <View style={{flex: 0,}}>
-                                <Text style={{color: '#FFF', alignSelf:'center', alignContent: 'center', paddingVertical: 10}}>dilana.in</Text>
-                            </View>
+                    <View style={this.styles.containerInner}>
+                        <View style={this.styles.containerInnerLogo}>
+                            <Text style={{color: '#FFF'}}>LOGOTO tuka</Text>
+                            <Text style={{color: '#FFF'}}>LOGOTO tuka</Text>
+                            <Text style={{color: '#FFF'}}>LOGOTO tuka</Text>
+                            <Text style={{color: '#FFF'}}>LOGOTO tuka</Text>
                         </View>
-                    {/*</ScrollView>*/}
+
+                        <View style={this.styles.navigationContainer}>
+                            <DrawerContentScrollView {...this.props}>
+                                <CustomDrawerItem label={'Home'} iconName={'cloud'} isActive={currentRoute === 'Home'} iconColor={'#FFF'} onPress={() => {
+                                    this.props.navigation.navigate('Main');
+                                }}/>
+                                <CustomDrawerItem label={'Settings'} iconName={'widget'} isActive={currentRoute === 'Settings'} iconColor={'#FFF'} onPress={() => {
+                                    this.props.navigation.navigate('Settings');
+                                }}/>
+                                <CustomDrawerItem label={'Add'} iconName={'plus'} isActive={currentRoute === 'Add'} iconColor={'#FFF'} onPress={() => {
+                                    this.props.navigation.navigate('Add');
+                                }}/>
+                            </DrawerContentScrollView>
+                        </View>
+
+                        <View style={this.styles.bottomContainer}>
+                            <Text style={this.styles.createdBy}>dilana.in</Text>
+                        </View>
+                    </View>
                 </View>
             </SafeAreaView>
         );
