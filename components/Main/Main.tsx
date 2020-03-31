@@ -1,15 +1,22 @@
 import { SplashScreen } from 'expo';
 import moment from 'moment';
 import React, { Component } from 'react';
-import { StatusBar, StyleSheet, View } from 'react-native';
+import { AsyncStorage, StatusBar, StyleSheet, View } from 'react-native';
 import Swiper from 'react-native-swiper';
 import { NavigationInjectedProps, withNavigation } from 'react-navigation';
 import { Countries } from '../../utils/Countries';
 import { API_KEY } from '../../utils/WeatherAPIKey';
 import Weather from '../Weather/Weather';
 
+interface MyProps {
+
+}
+
+
+
 class Main extends Component<NavigationInjectedProps> {
     state: {
+        locations: Array<string>,
         isLoading: boolean
         weather: {
             temperature: number,
@@ -42,6 +49,7 @@ class Main extends Component<NavigationInjectedProps> {
         error: string
     } = {
         isLoading: true,
+        locations: [],
         weather: {
             temperature: 0,
             feelsLike: 0,
@@ -62,7 +70,6 @@ class Main extends Component<NavigationInjectedProps> {
         },
         error: undefined,
     };
-
     private styles = StyleSheet.create({
         container: {
             flex: 1,
@@ -78,6 +85,26 @@ class Main extends Component<NavigationInjectedProps> {
 
     componentDidMount() {
         navigator.geolocation.getCurrentPosition(position => {
+            AsyncStorage.getItem('@locations').then((locations: any) => {
+                console.log(locations);
+
+                if (!locations) {
+                    locations = ['geolocation'];
+                    AsyncStorage.setItem('@locations', JSON.stringify(['geolocation']));
+                } else {
+                    locations = JSON.parse(locations);
+                }
+
+
+                this.setState(() => ({locations: locations}), () => {
+                    this.state.locations.forEach((location: string) => {
+
+                    });
+                });
+            }).catch(() => {
+                console.log('no locations');
+            });
+
                 this.fetchWeather(position.coords.latitude, position.coords.longitude);
             }, error => {
                 this.setState({error: 'Error Getting Weather Conditions'});
@@ -85,24 +112,35 @@ class Main extends Component<NavigationInjectedProps> {
         );
     }
 
-    fetchWeather(lat, lon) {
+    render() {
+        const {isLoading, weather} = this.state;
+
+        return (
+            <View style={this.styles.container}>
+                <StatusBar translucent barStyle="light-content"/>
+                {isLoading ? (
+                    <View style={this.styles.loadingContainer}/>
+                ) : (
+                    <Swiper showsButtons={false} loop={false} autoplay={false} dotColor={'rgba(255, 255, 255, 0.3)'} activeDotColor={'rgba(255, 255, 255, 0.9)'}>
+                        <Weather weather={weather}/>
+                        <Weather weather={weather}/>
+                        <Weather weather={weather}/>
+                    </Swiper>
+                )}
+            </View>
+        );
+    }
+
+    private fetchWeather(lat, lon) {
         fetch(`http://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&APPID=${API_KEY}&units=metric`).then(res => res.json()).then(json => {
-            let tempMax = Math.round(json.main.temp_max);
-            let tempMin = Math.round(json.main.temp_min);
-
-            if (tempMax === tempMin) {
-                tempMax++;
-                tempMin--;
-            }
-
             this.setState({
                 weather: {
-                    temperature: Math.round(json.main.temp),
-                    feelsLike: Math.round(json.main.feels_like),
-                    humidity: Math.round(json.main.humidity),
-                    pressure: Math.round(json.main.pressure),
-                    tempMin: tempMin,
-                    tempMax: tempMax,
+                    temperature: json.main.temp,
+                    feelsLike: json.main.feels_like,
+                    humidity: json.main.humidity,
+                    pressure: json.main.pressure,
+                    tempMin: json.main.temp_min,
+                    tempMax: json.main.temp_max,
                     city: json.name,
                     country: Countries.find(c => c.code === json.sys.country).name,
                     sunrise: json.sys.sunrise,
@@ -110,14 +148,15 @@ class Main extends Component<NavigationInjectedProps> {
                     weatherCondition: json.weather[0],
                     wind: {
                         deg: json.wind.deg,
-                        speed: Math.floor(json.wind.speed * 3.6),
+                        speed: json.wind.speed * 3.6,
                     },
                 },
                 isLoading: true,
             });
 
             // @TODO setOptions is missing from interface
-            this.props.navigation['setOptions']({title: this.state.weather.city});
+            // @ts-ignore
+            this.props.navigation.setOptions({title: this.state.weather.city});
 
             // fetch forecast
             fetch(`http://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&APPID=${API_KEY}&units=metric`).then(res => res.json()).then(json => {
@@ -125,11 +164,11 @@ class Main extends Component<NavigationInjectedProps> {
                 let tempMin, tempMax;
                 json.list.forEach((item: any) => {
                     if (moment().isSame(moment(item.dt * 1000), 'd')) {
-                        if (!tempMin || tempMin > item.main.temp_min) {
+                        if (typeof tempMin === 'undefined' || tempMin > item.main.temp_min) {
                             tempMin = item.main.temp_min;
                         }
 
-                        if (!tempMax || item.main.temp_max > tempMax) {
+                        if (typeof tempMax === 'undefined' || item.main.temp_max > tempMax) {
                             tempMax = item.main.temp_max;
                         }
                     }
@@ -139,8 +178,8 @@ class Main extends Component<NavigationInjectedProps> {
                     this.setState((prevState: any) => ({
                         weather: {
                             ...prevState.weather,
-                            tempMin: Math.round(tempMin),
-                            tempMax: Math.round(tempMax),
+                            tempMin: tempMin,
+                            tempMax: tempMax,
                         },
                     }));
                 }
@@ -172,11 +211,11 @@ class Main extends Component<NavigationInjectedProps> {
                     const fc = forecastData.filter((item: any) => item.date === mday);
                     if (fc.length > 0) {
                         fc.forEach((item: any) => {
-                            if (!tempMin || tempMin > item.tempMin) {
+                            if (typeof tempMin === 'undefined' || tempMin > item.tempMin) {
                                 tempMin = item.tempMin;
                             }
 
-                            if (!tempMax || item.tempMax > tempMax) {
+                            if (typeof tempMax === 'undefined' || item.tempMax > tempMax) {
                                 tempMax = item.tempMax;
                             }
 
@@ -194,8 +233,8 @@ class Main extends Component<NavigationInjectedProps> {
                         const fData = {
                             day: mdayF,
                             code: +mostFrequent[0],
-                            tempMin: Math.round(tempMin || 0),
-                            tempMax: Math.round(tempMax || 0),
+                            tempMin: tempMin || 0,
+                            tempMax: tempMax || 0,
                         };
 
                         forecast.push(fData);
@@ -217,25 +256,6 @@ class Main extends Component<NavigationInjectedProps> {
                 setTimeout(() => SplashScreen.hide(), 222);
             });
         });
-    }
-
-    render() {
-        const {isLoading, weather} = this.state;
-
-        return (
-            <View style={this.styles.container}>
-                <StatusBar translucent barStyle="light-content"/>
-                {isLoading ? (
-                    <View style={this.styles.loadingContainer}/>
-                ) : (
-                    <Swiper showsButtons={false} loop={false} autoplay={false} dotColor={'rgba(255, 255, 255, 0.3)'} activeDotColor={'rgba(255, 255, 255, 0.9)'}>
-                        <Weather weather={weather}/>
-                        <Weather weather={weather}/>
-                        <Weather weather={weather}/>
-                    </Swiper>
-                )}
-            </View>
-        );
     }
 }
 

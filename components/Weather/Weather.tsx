@@ -2,19 +2,42 @@ import * as shape from 'd3-shape';
 import moment from 'moment';
 import PropTypes from 'prop-types';
 import React from 'react';
-import { Dimensions, StyleSheet, Text, View } from 'react-native';
+import { AsyncStorage, DeviceEventEmitter, Dimensions, StyleSheet, Text, View } from 'react-native';
 import 'react-native-gesture-handler';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
 import { Circle, SvgCss, Text as SVGText } from 'react-native-svg';
 import { LineChart } from 'react-native-svg-charts';
 import { ForecastIcons } from '../../utils/ForecastIcons';
+import { DegreesConverter, PressureConverter, SpeedConverter } from '../../utils/UnitsConverter';
 import { weatherConditions } from '../../utils/WeatherConditions';
 import { WeatherIcons } from '../../utils/WeatherIcons';
 import { WindDirectionConvert } from '../../utils/WindDirectionConvert';
 
-export default class Weather extends React.Component<{ weather: any }> {
+interface MyState {
+    settings: {
+        temperature: boolean
+        speed: boolean
+        pressure: boolean
+        time: boolean
+    }
+}
+
+interface MyProps {
+    weather: any
+}
+
+export default class Weather extends React.Component<MyProps, MyState> {
     static propTypes = {
         weather: PropTypes.any.isRequired,
+    };
+
+    state: MyState = {
+        settings: {
+            temperature: true,
+            speed: true,
+            pressure: true,
+            time: true,
+        },
     };
 
     private styles = StyleSheet.create({
@@ -153,9 +176,24 @@ export default class Weather extends React.Component<{ weather: any }> {
             fontFamily: 'Lato-Light',
         },
     });
+    private _settingsUpdatedSubscription;
 
     constructor(props) {
         super(props);
+    }
+
+    async componentDidMount() {
+        if (this._settingsUpdatedSubscription) {
+            this._settingsUpdatedSubscription.remove();
+        }
+
+        this._settingsUpdatedSubscription = DeviceEventEmitter.addListener('settings.updated', async (event) => await this.fetchSettings());
+
+        await this.fetchSettings();
+    }
+
+    componentWillUnmount() {
+        this._settingsUpdatedSubscription.remove();
     }
 
     render() {
@@ -218,7 +256,7 @@ export default class Weather extends React.Component<{ weather: any }> {
                             x={xx}
                             y={yy}
                             textAnchor={'middle'}>
-                            {temp}˚
+                            {DegreesConverter(temp, this.state.settings.temperature) + '˚'}
                         </SVGText>
                     );
                 });
@@ -239,7 +277,7 @@ export default class Weather extends React.Component<{ weather: any }> {
                             x={xx}
                             y={yy}
                             textAnchor={'middle'}>
-                            {temp}˚
+                            {DegreesConverter(temp, this.state.settings.temperature) + '˚'}
                         </SVGText>
                     );
                 });
@@ -263,13 +301,17 @@ export default class Weather extends React.Component<{ weather: any }> {
 
                     <View style={this.styles.tempContainer}>
                         <View style={{height: 120, overflow: 'hidden'}}>
-                            <Text style={this.styles.tempText}>{this.props.weather.temperature}˚</Text>
+                            <Text style={this.styles.tempText}>{DegreesConverter(this.props.weather.temperature, this.state.settings.temperature) + '˚'}</Text>
                         </View>
 
                         <View style={this.styles.tempHighLowContainer}>
-                            <Text style={this.styles.tempHighLowText}>{this.props.weather.tempMax}˚ C</Text>
+                            <Text style={this.styles.tempHighLowText}>
+                                {DegreesConverter(this.props.weather.tempMax, this.state.settings.temperature) + '˚'}{this.state.settings.temperature ? 'C' : 'F'}
+                            </Text>
                             <View style={this.styles.tempHighLowHR}/>
-                            <Text style={this.styles.tempHighLowText}>{this.props.weather.tempMin}˚ C</Text>
+                            <Text style={this.styles.tempHighLowText}>
+                                {DegreesConverter(this.props.weather.tempMin, this.state.settings.temperature) + '˚'}{this.state.settings.temperature ? 'C' : 'F'}
+                            </Text>
                         </View>
                     </View>
 
@@ -277,7 +319,7 @@ export default class Weather extends React.Component<{ weather: any }> {
                         <View style={[this.styles.detailsElement, {marginLeft: 0}]}>
                             <SvgCss xml={WeatherIcons('temperature').xml} width={38} height={38}/>
                             <View style={this.styles.detailsElementTextView}>
-                                <Text style={this.styles.detailsElementText}>{this.props.weather.feelsLike}˚</Text>
+                                <Text style={this.styles.detailsElementText}>{DegreesConverter(this.props.weather.feelsLike, this.state.settings.temperature) + '˚'}</Text>
                                 <Text style={this.styles.detailsElementText}>Feels like</Text>
                             </View>
                         </View>
@@ -291,7 +333,9 @@ export default class Weather extends React.Component<{ weather: any }> {
                         <View style={this.styles.detailsElement}>
                             <SvgCss xml={WeatherIcons('wind').xml} width={38} height={38}/>
                             <View style={this.styles.detailsElementTextView}>
-                                <Text style={this.styles.detailsElementText}>{this.props.weather.wind.speed}km/h</Text>
+                                <Text style={this.styles.detailsElementText}>
+                                    {SpeedConverter(this.props.weather.wind.speed, this.state.settings.speed)}{this.state.settings.speed ? 'km/h' : 'mph'}
+                                </Text>
                                 <Text style={this.styles.detailsElementText}>{WindDirectionConvert(this.props.weather.wind.deg)}</Text>
                             </View>
                         </View>
@@ -299,7 +343,9 @@ export default class Weather extends React.Component<{ weather: any }> {
                             (<View style={this.styles.detailsElement}>
                                 <SvgCss xml={WeatherIcons('pressure').xml} width={38} height={38}/>
                                 <View style={this.styles.detailsElementTextView}>
-                                    <Text style={this.styles.detailsElementText}>{this.props.weather.pressure}hPa</Text>
+                                    <Text style={this.styles.detailsElementText}>
+                                        {PressureConverter(this.props.weather.pressure, this.state.settings.pressure)}{this.state.settings.pressure ? 'hPa' : 'inHg'}
+                                    </Text>
                                     <Text style={this.styles.detailsElementText}>Pressure</Text>
                                 </View>
                             </View>) :
@@ -309,11 +355,21 @@ export default class Weather extends React.Component<{ weather: any }> {
                             <SvgCss xml={WeatherIcons('sunrise').xml} width={38} height={38}/>
                             {displaySunset ?
                                 (<View style={this.styles.detailsElementTextView}>
-                                    <Text style={this.styles.detailsElementText}>{moment.unix(this.props.weather.sunset).format('HH:mm')}</Text>
+                                    <Text style={this.styles.detailsElementText}>
+                                        {this.state.settings.time ?
+                                            (moment.unix(this.props.weather.sunset).format('HH:mm')) :
+                                            (moment.unix(this.props.weather.sunset).format('hh:mm'))
+                                        }
+                                    </Text>
                                     <Text style={this.styles.detailsElementText}>Sunset</Text>
                                 </View>) :
                                 (<View style={this.styles.detailsElementTextView}>
-                                    <Text style={this.styles.detailsElementText}>{moment.unix(this.props.weather.sunrise).format('HH:mm')}</Text>
+                                    <Text style={this.styles.detailsElementText}>
+                                        {this.state.settings.time ?
+                                            (moment.unix(this.props.weather.sunrise).format('HH:mm')) :
+                                            (moment.unix(this.props.weather.sunrise).format('hh:mm'))
+                                        }
+                                    </Text>
                                     <Text style={this.styles.detailsElementText}>Sunrise</Text>
                                 </View>)
                             }
@@ -351,6 +407,22 @@ export default class Weather extends React.Component<{ weather: any }> {
                     <Text>Oh no, something went wrong</Text>
                 </View>
             );
+        }
+    }
+
+    private async fetchSettings() {
+        let settings;
+
+        try {
+            const value = await AsyncStorage.getItem('@settings');
+            if (value !== null) {
+                settings = JSON.parse(value);
+            }
+        } catch (e) {
+        }
+
+        if (settings) {
+            this.setState({settings: settings});
         }
     }
 }

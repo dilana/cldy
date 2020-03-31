@@ -1,17 +1,23 @@
 import React, { Component } from 'react';
-import { AsyncStorage, StatusBar, StyleSheet, Switch, Text, View } from 'react-native';
+import { AsyncStorage, DeviceEventEmitter, StatusBar, StyleSheet, Switch, Text, View } from 'react-native';
 import 'react-native-gesture-handler';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
 
-export default class Settings extends Component {
-    state: {
-        settings: {
-            temperature: boolean
-            speed: boolean
-            pressure: boolean
-            time: boolean
-        }
-    } = {
+interface MyState {
+    settings: {
+        temperature: boolean
+        speed: boolean
+        pressure: boolean
+        time: boolean
+    }
+}
+
+interface MyProps {
+
+}
+
+export default class Settings extends Component<MyProps, MyState> {
+    state: MyState = {
         settings: {
             temperature: true,
             speed: true,
@@ -71,6 +77,7 @@ export default class Settings extends Component {
 
         try {
             const value = await AsyncStorage.getItem('@settings');
+
             if (value !== null) {
                 settings = JSON.parse(value);
             }
@@ -112,6 +119,7 @@ export default class Settings extends Component {
                                             },
                                         }), async () => {
                                             await AsyncStorage.setItem('@settings', JSON.stringify(this.state.settings));
+                                            DeviceEventEmitter.emit('settings.updated', {});
                                         });
                                     } catch (e) {
                                     }
@@ -136,6 +144,7 @@ export default class Settings extends Component {
                                             },
                                         }), async () => {
                                             await AsyncStorage.setItem('@settings', JSON.stringify(this.state.settings));
+                                            DeviceEventEmitter.emit('settings.updated', {});
                                         });
                                     } catch (e) {
                                     }
@@ -146,7 +155,7 @@ export default class Settings extends Component {
                     <View style={this.styles.groupContainerItem}>
                         <Text style={this.styles.itemLabel}>{'Pressure'}</Text>
 
-                        <Text style={this.styles.activeOption}>{this.state.settings.pressure ? 'hPa' : 'mb'}</Text>
+                        <Text style={this.styles.activeOption}>{this.state.settings.pressure ? 'hPa' : 'inHg'}</Text>
 
                         <Switch trackColor={trackColor}
                                 thumbColor={thumbColor}
@@ -160,6 +169,7 @@ export default class Settings extends Component {
                                             },
                                         }), async () => {
                                             await AsyncStorage.setItem('@settings', JSON.stringify(this.state.settings));
+                                            DeviceEventEmitter.emit('settings.updated', {});
                                         });
                                     } catch (e) {
                                     }
@@ -184,6 +194,7 @@ export default class Settings extends Component {
                                             },
                                         }), async () => {
                                             await AsyncStorage.setItem('@settings', JSON.stringify(this.state.settings));
+                                            DeviceEventEmitter.emit('settings.updated', {});
                                         });
                                     } catch (e) {
                                     }

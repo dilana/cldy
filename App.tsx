@@ -8,8 +8,8 @@ import { StyleSheet, Text, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 import 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import Add from './components/Add/Add';
 import CustomDrawer from './components/CustomDrawer/CustomDrawer';
+import Locations from './components/Locations/Locations';
 import Main from './components/Main/Main';
 import Settings from './components/Settings/Settings';
 
@@ -28,7 +28,7 @@ export default class App extends React.Component {
                     headerTitleStyle: this.styles.headerTitle,
                 })}/>
                 <Stack.Screen name="Settings" component={Settings} options={{headerTransparent: true, headerTitleStyle: this.styles.headerTitle}}/>
-                <Stack.Screen name="Add" component={Add} options={{headerTransparent: true, headerTitleStyle: this.styles.headerTitle}}/>
+                <Stack.Screen name="Locations" component={Locations} options={{headerTransparent: true, headerTitleStyle: this.styles.headerTitle}}/>
             </Stack.Navigator>
         );
     };
@@ -37,10 +37,11 @@ export default class App extends React.Component {
         return (
             <Stack.Navigator>
                 <Stack.Screen name="Settings" component={Settings} options={({route, navigation}) => ({
-                    headerLeft: () => <View style={{paddingLeft: 10, flex: 0, flexDirection: 'row',  alignItems: 'center', justifyContent: 'center',}}>
-                        <Icon name="chevron-left" type={'material'} color={'#FFF'} size={30} onPress={() => navigation.goBack()} underlayColor={'transparent'} activeOpacity={0.8}/>
-                        <Text style={this.styles.headerTitle} onPress={() => navigation.goBack()}>Back</Text>
-                    </View>,
+                    headerLeft: () =>
+                        <View style={{paddingLeft: 10, flex: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
+                            <Icon name="chevron-left" type={'material'} color={'#FFF'} size={30} onPress={() => navigation.goBack()} underlayColor={'transparent'} activeOpacity={0.8}/>
+                            <Text style={this.styles.headerTitle} onPress={() => navigation.goBack()}>Back</Text>
+                        </View>,
                     title: 'Settings',
                     headerTransparent: true,
                     headerTitleStyle: this.styles.headerTitle,
@@ -48,10 +49,19 @@ export default class App extends React.Component {
             </Stack.Navigator>
         );
     };
-    private AddStack = () => {
+    private LocationsStack = () => {
         return (
             <Stack.Navigator>
-                <Stack.Screen name="Add" component={Add} options={{headerTransparent: true, headerTitleStyle: this.styles.headerTitle}}/>
+                <Stack.Screen name="Locations" component={Locations} options={({route, navigation}) => ({
+                    headerLeft: () =>
+                        <View style={{paddingLeft: 10, flex: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
+                            <Icon name="chevron-left" type={'material'} color={'#FFF'} size={30} onPress={() => navigation.goBack()} underlayColor={'transparent'} activeOpacity={0.8}/>
+                            <Text style={this.styles.headerTitle} onPress={() => navigation.goBack()}>Back</Text>
+                        </View>,
+                    title: 'Locations',
+                    headerTransparent: true,
+                    headerTitleStyle: this.styles.headerTitle,
+                })}/>
             </Stack.Navigator>
         );
     };
@@ -104,7 +114,7 @@ export default class App extends React.Component {
                         <Drawer.Navigator initialRouteName="Home" drawerStyle={this.styles.drawer} drawerContent={props => <CustomDrawer {...props} />} backBehavior='initialRoute' hideStatusBar={true}>
                             <Drawer.Screen name="Home" component={this.MainStack}/>
                             <Drawer.Screen name="Settings" component={this.SettingsStack}/>
-                            <Drawer.Screen name="Add" component={this.AddStack}/>
+                            <Drawer.Screen name="Locations" component={this.LocationsStack}/>
                         </Drawer.Navigator>
                     </NavigationContainer>
                 </SafeAreaProvider>
