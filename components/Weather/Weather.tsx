@@ -14,12 +14,7 @@ import { WeatherIcons } from '../../utils/WeatherIcons';
 import { WindDirectionConvert } from '../../utils/WindDirectionConvert';
 
 interface MyState {
-    settings: {
-        temperature: boolean
-        speed: boolean
-        pressure: boolean
-        time: boolean
-    }
+    settings: SettingsInterface
 }
 
 interface MyProps {

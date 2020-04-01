@@ -4,12 +4,7 @@ import 'react-native-gesture-handler';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
 
 interface MyState {
-    settings: {
-        temperature: boolean
-        speed: boolean
-        pressure: boolean
-        time: boolean
-    }
+    settings: SettingsInterface
 }
 
 interface MyProps {
