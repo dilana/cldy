@@ -57,7 +57,7 @@ export default class Locations extends React.Component<MyProps, MyState> {
 
                 <Dialog.Container visible={this.state.dialogVisible}>
                     <Dialog.Title>Add Location</Dialog.Title>
-                    <Dialog.Description></Dialog.Description>
+                    <Dialog.Description>Enter city name</Dialog.Description>
                     <Dialog.Input placeholder="San Francisco, USA" onSubmitEditing={this.handleAddCity} onChange={(event: SyntheticEvent) => {
                         // @ts-ignore
                         this.setState({value: event.nativeEvent.text});
