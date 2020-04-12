@@ -14,19 +14,25 @@ import { WeatherIcons } from '../../utils/WeatherIcons';
 import { WindDirectionConvert } from '../../utils/WindDirectionConvert';
 
 interface MyState {
+    width: number,
+    height: number,
+    wideEnough: boolean,
     settings: SettingsInterface
 }
 
 interface MyProps {
-    weather: any
+    weather: WeatherInterface
 }
 
-export default class Weather extends React.Component<MyProps, MyState> {
+export default class Weather extends React.PureComponent<MyProps, MyState> {
     static propTypes = {
         weather: PropTypes.any.isRequired,
     };
 
     state: MyState = {
+        width: Dimensions.get('window').width,
+        height: Dimensions.get('window').height,
+        wideEnough: Dimensions.get('window').width >= 414,
         settings: {
             temperature: true,
             speed: true,
@@ -42,6 +48,7 @@ export default class Weather extends React.Component<MyProps, MyState> {
             paddingBottom: 15 + 25,
             paddingLeft: 10,
             paddingRight: 10,
+            width: Dimensions.get('window').width,
         },
         weatherContainerBackground: {
             position: 'absolute',
@@ -178,41 +185,36 @@ export default class Weather extends React.Component<MyProps, MyState> {
     }
 
     async componentDidMount() {
-        if (this._settingsUpdatedSubscription) {
-            this._settingsUpdatedSubscription.remove();
-        }
-
         this._settingsUpdatedSubscription = DeviceEventEmitter.addListener('settings.updated', async (event) => await this.fetchSettings());
 
         await this.fetchSettings();
     }
 
     componentWillUnmount() {
-        this._settingsUpdatedSubscription.remove();
+        if (this._settingsUpdatedSubscription) {
+            this._settingsUpdatedSubscription.remove();
+        }
     }
 
     render() {
         if (this.props.weather) {
             const forecastData = [];
-            const width = Dimensions.get('window').width;
-            const height = Dimensions.get('window').height;
             const weatherCondition = weatherConditions(this.props.weather);
             const displaySunset: boolean = (moment.now() / 1000) > this.props.weather.sunrise && (moment.now() / 1000) <= this.props.weather.sunset;
-            const wideEnough = Dimensions.get('window').width >= 414;
 
             Object.values(this.props.weather.forecast).forEach((item: any) => {
                 forecastData.push((item.tempMax + item.tempMin) / 2);
             });
 
             const backgroundSVG = `
-                <svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
+                <svg width="${this.state.width}" height="${this.state.height}" viewBox="0 0 ${this.state.width} ${this.state.height}">
                     <defs>
                         <linearGradient id="grad1" x1="0%" y1="0%" x2="0%" y2="100%" gradientTransform="rotate(20)">
                             <stop offset="0%" style="stop-color:${weatherCondition.gradientColorStart}; stop-opacity:1" />
                             <stop offset="80%" style="stop-color:${weatherCondition.gradientColorEnd}; stop-opacity:1" />
                         </linearGradient>
                     </defs>
-                    <rect width="${width}" height="${height}" fill="url(#grad1)" />
+                    <rect width="${this.state.width}" height="${this.state.height}" fill="url(#grad1)" />
                 </svg>
             `;
 
@@ -334,7 +336,7 @@ export default class Weather extends React.Component<MyProps, MyState> {
                                 <Text style={this.styles.detailsElementText}>{WindDirectionConvert(this.props.weather.wind.deg)}</Text>
                             </View>
                         </View>
-                        {wideEnough ?
+                        {this.state.wideEnough ?
                             (<View style={this.styles.detailsElement}>
                                 <SvgCss xml={WeatherIcons('pressure').xml} width={38} height={38}/>
                                 <View style={this.styles.detailsElementTextView}>

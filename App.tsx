@@ -8,6 +8,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 import 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { enableScreens } from 'react-native-screens';
 import CustomDrawer from './components/CustomDrawer/CustomDrawer';
 import Locations from './components/Locations/Locations';
 import Main from './components/Main/Main';
@@ -27,8 +28,6 @@ export default class App extends React.Component {
                     headerTransparent: true,
                     headerTitleStyle: this.styles.headerTitle,
                 })}/>
-                <Stack.Screen name="Settings" component={Settings} options={{headerTransparent: true, headerTitleStyle: this.styles.headerTitle}}/>
-                <Stack.Screen name="Locations" component={Locations} options={{headerTransparent: true, headerTitleStyle: this.styles.headerTitle}}/>
             </Stack.Navigator>
         );
     };
@@ -84,6 +83,7 @@ export default class App extends React.Component {
             color: '#FFF',
             fontSize: 20,
             fontFamily: 'Lato-Regular',
+            textAlign: 'center',
         },
         drawer: {
             backgroundColor: 'rgba(26, 26, 29, 1)',
@@ -93,7 +93,10 @@ export default class App extends React.Component {
 
     constructor(props) {
         super(props);
+        enableScreens();
         SplashScreen.preventAutoHide();
+
+        // AsyncStorage.multiRemove(['@weather', '@locations', '@settings']).then(() => {});
     }
 
     componentDidMount() {
@@ -111,7 +114,7 @@ export default class App extends React.Component {
             return (
                 <SafeAreaProvider>
                     <NavigationContainer>
-                        <Drawer.Navigator initialRouteName="Home" drawerStyle={this.styles.drawer} drawerContent={props => <CustomDrawer {...props} />} backBehavior='initialRoute' hideStatusBar={true}>
+                        <Drawer.Navigator initialRouteName="Home" drawerStyle={this.styles.drawer} drawerContent={props => <CustomDrawer {...props} />} backBehavior='initialRoute' hideStatusBar={false}>
                             <Drawer.Screen name="Home" component={this.MainStack}/>
                             <Drawer.Screen name="Settings" component={this.SettingsStack}/>
                             <Drawer.Screen name="Locations" component={this.LocationsStack}/>

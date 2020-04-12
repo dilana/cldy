@@ -8,7 +8,7 @@ export default class WeatherService {
         return new Promise((resolve) => {
             navigator.geolocation.getCurrentPosition(position => {
                 return resolve({latitude: position.coords.latitude, longitude: position.coords.longitude});
-            }, error => {
+            }, () => {
                 return resolve({latitude: 37.754149, longitude: -122.447126});
             });
         });
@@ -24,16 +24,18 @@ export default class WeatherService {
         return this.fetchWeather(query).then((weather) => this.updateWeather(weather));
     }
 
-    static getWeatherByLocation(lat: number | string, lon?: number) {
-
-    }
-
     static getSavedWeather(): Promise<Array<WeatherInterface>> {
-        return AsyncStorage.getItem('@weather').then((weather: any) => weather !== null ? Promise.resolve(JSON.parse(weather)) : Promise.reject());
+        return new Promise((resolve, reject) => {
+            AsyncStorage.getItem('@weather').then((weather: any) => {
+                return weather !== null ? resolve(JSON.parse(weather)) : reject();
+            }).catch(() => {
+                return reject();
+            });
+        });
     }
 
     static getLocations(): Promise<Array<string>> {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             AsyncStorage.getItem('@locations').then((locations: any) => {
                 if (locations === null) {
                     locations = ['geolocation'];
@@ -44,6 +46,21 @@ export default class WeatherService {
 
                 resolve(locations);
             });
+        });
+    }
+
+    static addLocation(location: string): Promise<any> {
+        return new Promise((resolve, reject) => {
+            return this.fetchWeather(location)
+                .then((weather) => this.updateWeather(weather))
+                .then(() => this.getLocations())
+                .then((locations) => AsyncStorage.setItem('@locations', JSON.stringify([...locations, location]), (err) => {
+                    if (err) {
+                        return reject(err);
+                    }
+
+                    return resolve(true);
+                }));
         });
     }
 

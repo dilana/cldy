@@ -1,7 +1,7 @@
 import { SplashScreen } from 'expo';
 import React, { Component } from 'react';
-import { StatusBar, StyleSheet, Text, View } from 'react-native';
-import Swiper from 'react-native-swiper';
+import { DeviceEventEmitter, Dimensions, StatusBar, StyleSheet, Text, View } from 'react-native';
+import { FlatList } from 'react-native-gesture-handler';
 import { NavigationInjectedProps, withNavigation } from 'react-navigation';
 import WeatherService from '../../utils/WeatherService';
 import Weather from '../Weather/Weather';
@@ -36,12 +36,27 @@ class Main extends Component<MyProps & NavigationInjectedProps, MyState> {
             justifyContent: 'center',
             backgroundColor: '#000',
         },
+        flatlist: {
+            width: Dimensions.get('window').width,
+        },
     });
-    private currentWeatherIndex: number = 0;
+    private _flatListUpdatedSubscription;
 
     componentDidMount() {
-        this.updateWeatherState();
-        WeatherService.updateCurrentPositionWeather().then(() => this.updateWeatherState()).catch(() => alert('Error getting weather conditions'));
+        this._flatListUpdatedSubscription = DeviceEventEmitter.addListener('flatList.onViewableItemsChanged', (event) => this.onViewableItemsChangedSub(event));
+
+        this.updateWeatherState().then(() => {
+            // All good
+        }).catch(() => {
+            // First time app open
+            WeatherService.updateCurrentPositionWeather().then(() => this.updateWeatherState()).catch(() => alert('Error getting weather conditions'));
+        });
+    }
+
+    componentWillUnmount() {
+        if (this._flatListUpdatedSubscription) {
+            this._flatListUpdatedSubscription.remove();
+        }
     }
 
     render() {
@@ -57,9 +72,26 @@ class Main extends Component<MyProps & NavigationInjectedProps, MyState> {
                         {isLoading ? (
                             <View style={this.styles.loadingContainer}/>
                         ) : (
-                            <Swiper showsButtons={false} loop={false} autoplay={false} dotColor={'rgba(255, 255, 255, 0.3)'} activeDotColor={'rgba(255, 255, 255, 0.9)'} onIndexChanged={(index) => this.onIndexChanged(index)}>
-                                {weather.map((prop, key) => (<Weather weather={prop} key={key}/>))}
-                            </Swiper>
+                            <FlatList
+                                horizontal
+                                pagingEnabled
+                                disableIntervalMomentum
+                                data={weather}
+                                initialNumToRender={5}
+                                windowSize={5}
+                                viewabilityConfig={
+                                    {
+                                        itemVisiblePercentThreshold: 100,
+                                    }
+                                }
+                                style={this.styles.flatlist}
+                                keyExtractor={weather => weather.query}
+                                showsHorizontalScrollIndicator={true}
+                                renderItem={({item, index}) => (
+                                    <Weather weather={item}/>
+                                )}
+                                onViewableItemsChanged={this.onViewableItemsChanged}
+                            />
                         )}
                     </View>
                 )}
@@ -67,27 +99,40 @@ class Main extends Component<MyProps & NavigationInjectedProps, MyState> {
         );
     }
 
-    private onIndexChanged(index: number) {
-        this.currentWeatherIndex = index;
-        const query = this.state.weather[index].query;
+    private onViewableItemsChanged({viewableItems, changed}) {
+        DeviceEventEmitter.emit('flatList.onViewableItemsChanged', {viewableItems, changed});
+    }
 
-        if (query === 'geolocation') {
-            WeatherService.updateCurrentPositionWeather().then(() => this.updateWeatherState()).catch(() => alert('Error getting weather conditions'));
-        } else {
-            WeatherService.updateWeatherByQuery(query).then(() => this.updateWeatherState()).catch(() => alert('Error getting weather conditions'));
+    private onViewableItemsChangedSub({viewableItems, changed}) {
+        if (viewableItems.length > 0) {
+            const index = viewableItems[0].index;
+            const query = viewableItems[0].item.query;
+
+            // @ts-ignore
+            this.props.navigation.setOptions({title: viewableItems[0].item.city});
+
+            if (+new Date() > this.state.weather[index].updatedAt + (1000 * 60 * 30)) {
+                if (query === 'geolocation') {
+                    WeatherService.updateCurrentPositionWeather().then(() => this.updateWeatherState()).catch(() => alert('Error getting weather conditions'));
+                } else {
+                    WeatherService.updateWeatherByQuery(query).then(() => this.updateWeatherState()).catch(() => alert('Error getting weather conditions'));
+                }
+            }
         }
     }
 
-    private updateWeatherState() {
-        WeatherService.getSavedWeather().then((data) => this.setState({weather: data}, () => this.setIsLoaded()));
+    private updateWeatherState(): Promise<any> {
+        return new Promise((resolve, reject) => WeatherService.getSavedWeather().then((data) => this.setState({weather: data}, () => this.setIsLoaded())).catch(() => reject()));
     }
 
-    private setIsLoaded() {
-        this.setState({isLoading: false});
-        setTimeout(() => SplashScreen.hide(), 222);
-
-        // @ts-ignore
-        this.props.navigation.setOptions({title: this.state.weather[this.currentWeatherIndex].city});
+    private setIsLoaded(): Promise<any> {
+        return new Promise((resolve) => {
+            if (this.state.isLoading) {
+                this.setState({isLoading: false}, () => setTimeout(() => SplashScreen.hide(), resolve()));
+            } else {
+                resolve();
+            }
+        });
     }
 }
 
