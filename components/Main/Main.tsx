@@ -62,9 +62,11 @@ class Main extends Component<MyProps & NavigationInjectedProps, MyState> {
         },
     });
     private _flatListUpdatedSubscription;
+    private _flatListScrollSubscription;
 
     componentDidMount() {
         this._flatListUpdatedSubscription = DeviceEventEmitter.addListener('flatList.onViewableItemsChanged', (event) => this.onViewableItemsChangedSub(event));
+        this._flatListScrollSubscription = DeviceEventEmitter.addListener('flatList.onScroll', (event) => this.onScrollSub(event));
 
         this.updateWeatherState().then(() => {
             // All good
@@ -77,6 +79,10 @@ class Main extends Component<MyProps & NavigationInjectedProps, MyState> {
     componentWillUnmount() {
         if (this._flatListUpdatedSubscription) {
             this._flatListUpdatedSubscription.remove();
+        }
+
+        if (this._flatListScrollSubscription) {
+            this._flatListScrollSubscription.remove();
         }
     }
 
@@ -113,7 +119,7 @@ class Main extends Component<MyProps & NavigationInjectedProps, MyState> {
                                         <Weather weather={item}/>
                                     )}
                                     onViewableItemsChanged={this.onViewableItemsChanged}
-                                    onScroll={this.handleScroll}
+                                    onScroll={this.onScroll}
                                 />
                                 <View style={this.styles.dotsContainer}>
                                     {Array.from({length: weather.length}, (v, k) => k).map((prop: any, key) => {
@@ -130,8 +136,17 @@ class Main extends Component<MyProps & NavigationInjectedProps, MyState> {
         );
     }
 
-    private handleScroll(event: Object) {
-        console.log(event);
+    private onScroll(event: any) {
+        DeviceEventEmitter.emit('flatList.onScroll', event);
+    }
+
+    private onScrollSub(event: any) {
+        const currentIndex = Math.round(event.nativeEvent.contentOffset.x / event.nativeEvent.layoutMeasurement.width);
+
+        // Set location name on scroll
+        // @ts-ignore
+        this.props.navigation.setOptions({title: this.state.weather[currentIndex].city});
+        this.setState({activeLocation: currentIndex});
     }
 
     private onViewableItemsChanged({viewableItems, changed}) {
