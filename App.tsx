@@ -16,58 +16,6 @@ import Settings from './components/Settings/Settings';
 
 export default class App extends React.Component {
     state: { isLoading: boolean } = {isLoading: true};
-
-    private MainStack = () => {
-        return (
-            <Stack.Navigator>
-                <Stack.Screen name="Main" component={Main} options={({route, navigation}) => ({
-                    headerLeft: () => <View style={{paddingLeft: 10}}>
-                        <Icon name="menu" color={'#FFF'} size={30} onPress={() => navigation.openDrawer()} underlayColor={'transparent'} activeOpacity={0.8}/>
-                    </View>,
-                    title: 'Weather',
-                    headerTransparent: true,
-                    headerTitleAlign:'center',
-                    headerTitleStyle: this.styles.headerTitle,
-                })}/>
-            </Stack.Navigator>
-        );
-    };
-
-    private SettingsStack = () => {
-        return (
-            <Stack.Navigator>
-                <Stack.Screen name="Settings" component={Settings} options={({route, navigation}) => ({
-                    headerLeft: () =>
-                        <View style={{paddingLeft: 10, flex: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
-                            <Icon name="chevron-left" type={'material'} color={'#FFF'} size={30} onPress={() => navigation.goBack()} underlayColor={'transparent'} activeOpacity={0.8}/>
-                            <Text style={this.styles.headerTitle} onPress={() => navigation.goBack()}>Back</Text>
-                        </View>,
-                    title: 'Settings',
-                    headerTransparent: true,
-                    headerTitleAlign:'center',
-                    headerTitleStyle: this.styles.headerTitle,
-                })}/>
-            </Stack.Navigator>
-        );
-    };
-    private LocationsStack = () => {
-        return (
-            <Stack.Navigator>
-                <Stack.Screen name="Locations" component={Locations} options={({route, navigation}) => ({
-                    headerLeft: () =>
-                        <View style={{paddingLeft: 10, flex: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
-                            <Icon name="chevron-left" type={'material'} color={'#FFF'} size={30} onPress={() => navigation.goBack()} underlayColor={'transparent'} activeOpacity={0.8}/>
-                            <Text style={this.styles.headerTitle} onPress={() => navigation.goBack()}>Back</Text>
-                        </View>,
-                    title: 'Locations',
-                    headerTransparent: true,
-                    headerTitleAlign:'center',
-                    headerTitleStyle: this.styles.headerTitle,
-                })}/>
-            </Stack.Navigator>
-        );
-    };
-
     private styles = StyleSheet.create({
         container: {
             flex: 1,
@@ -92,6 +40,55 @@ export default class App extends React.Component {
             width: 240,
         },
     });
+    private MainStack = () => {
+        return (
+            <Stack.Navigator>
+                <Stack.Screen name="Main" component={Main} options={({route, navigation}) => ({
+                    headerLeft: () => <View style={{paddingLeft: 10}}>
+                        <Icon name="menu" color={'#FFF'} size={30} onPress={() => navigation.openDrawer()} underlayColor={'transparent'} activeOpacity={0.8}/>
+                    </View>,
+                    title: 'Weather',
+                    headerTransparent: true,
+                    headerTitleAlign: 'center',
+                    headerTitleStyle: this.styles.headerTitle,
+                })}/>
+            </Stack.Navigator>
+        );
+    };
+    private SettingsStack = () => {
+        return (
+            <Stack.Navigator>
+                <Stack.Screen name="Settings" component={Settings} options={({route, navigation}) => ({
+                    headerLeft: () =>
+                        <View style={{paddingLeft: 10, flex: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
+                            <Icon name="chevron-left" type={'material'} color={'#FFF'} size={30} onPress={() => navigation.goBack()} underlayColor={'transparent'} activeOpacity={0.8}/>
+                            <Text style={this.styles.headerTitle} onPress={() => navigation.goBack()}>Back</Text>
+                        </View>,
+                    title: 'Settings',
+                    headerTransparent: true,
+                    headerTitleAlign: 'center',
+                    headerTitleStyle: this.styles.headerTitle,
+                })}/>
+            </Stack.Navigator>
+        );
+    };
+    private LocationsStack = () => {
+        return (
+            <Stack.Navigator>
+                <Stack.Screen name="Locations" component={Locations} options={({route, navigation}) => ({
+                    headerLeft: () =>
+                        <View style={{paddingLeft: 10, flex: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
+                            <Icon name="chevron-left" type={'material'} color={'#FFF'} size={30} onPress={() => navigation.goBack()} underlayColor={'transparent'} activeOpacity={0.8}/>
+                            <Text style={this.styles.headerTitle} onPress={() => navigation.goBack()}>Back</Text>
+                        </View>,
+                    title: 'Locations',
+                    headerTransparent: true,
+                    headerTitleAlign: 'center',
+                    headerTitleStyle: this.styles.headerTitle,
+                })}/>
+            </Stack.Navigator>
+        );
+    };
 
     constructor(props) {
         super(props);
