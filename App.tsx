@@ -17,19 +17,6 @@ import Settings from './components/Settings/Settings';
 export default class App extends React.Component {
     state: { isLoading: boolean } = {isLoading: true};
     private styles = StyleSheet.create({
-        container: {
-            flex: 1,
-            backgroundColor: '#FFFDE4',
-        },
-        loadingContainer: {
-            flex: 1,
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor: '#FFFDE4',
-        },
-        loadingText: {
-            fontSize: 30,
-        },
         headerTitle: {
             color: '#FFF',
             fontSize: 20,
