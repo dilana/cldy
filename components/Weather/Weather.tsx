@@ -28,7 +28,6 @@ export default class Weather extends React.PureComponent<MyProps, MyState> {
     static propTypes = {
         weather: PropTypes.any.isRequired,
     };
-
     state: MyState = {
         width: Dimensions.get('window').width,
         height: Dimensions.get('window').height,
@@ -40,7 +39,6 @@ export default class Weather extends React.PureComponent<MyProps, MyState> {
             time: true,
         },
     };
-
     private styles = StyleSheet.create({
         weatherContainer: {
             flex: 1,
@@ -178,21 +176,20 @@ export default class Weather extends React.PureComponent<MyProps, MyState> {
             fontFamily: 'Lato-Light',
         },
     });
-    private _settingsUpdatedSubscription;
+    private settingsUpdatedSubscription;
 
     constructor(props) {
         super(props);
     }
 
-    async componentDidMount() {
-        this._settingsUpdatedSubscription = DeviceEventEmitter.addListener('settings.updated', async (event) => await this.fetchSettings());
-
-        await this.fetchSettings();
+    componentDidMount() {
+        this.fetchSettings();
+        this.settingsUpdatedSubscription = DeviceEventEmitter.addListener('settings.updated', (event) => this.fetchSettings());
     }
 
     componentWillUnmount() {
-        if (this._settingsUpdatedSubscription) {
-            this._settingsUpdatedSubscription.remove();
+        if (this.settingsUpdatedSubscription) {
+            this.settingsUpdatedSubscription.remove();
         }
     }
 
@@ -407,19 +404,11 @@ export default class Weather extends React.PureComponent<MyProps, MyState> {
         }
     }
 
-    private async fetchSettings() {
-        let settings;
-
-        try {
-            const value = await AsyncStorage.getItem('@settings');
-            if (value !== null) {
-                settings = JSON.parse(value);
+    private fetchSettings() {
+        AsyncStorage.getItem('@settings').then((data) => {
+            if (data !== null) {
+                this.setState({settings: JSON.parse(data)});
             }
-        } catch (e) {
-        }
-
-        if (settings) {
-            this.setState({settings: settings});
-        }
+        });
     }
 }
