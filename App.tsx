@@ -26,6 +26,7 @@ export default class App extends React.Component {
                     </View>,
                     title: 'Weather',
                     headerTransparent: true,
+                    headerTitleAlign:'center',
                     headerTitleStyle: this.styles.headerTitle,
                 })}/>
             </Stack.Navigator>
@@ -43,6 +44,7 @@ export default class App extends React.Component {
                         </View>,
                     title: 'Settings',
                     headerTransparent: true,
+                    headerTitleAlign:'center',
                     headerTitleStyle: this.styles.headerTitle,
                 })}/>
             </Stack.Navigator>
@@ -59,6 +61,7 @@ export default class App extends React.Component {
                         </View>,
                     title: 'Locations',
                     headerTransparent: true,
+                    headerTitleAlign:'center',
                     headerTitleStyle: this.styles.headerTitle,
                 })}/>
             </Stack.Navigator>
@@ -83,7 +86,6 @@ export default class App extends React.Component {
             color: '#FFF',
             fontSize: 20,
             fontFamily: 'Lato-Regular',
-            textAlign: 'center',
         },
         drawer: {
             backgroundColor: 'rgba(26, 26, 29, 1)',
