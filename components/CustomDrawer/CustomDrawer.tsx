@@ -72,7 +72,7 @@ export default class CustomDrawer extends React.Component<{ navigation: any, sta
                         </View>
 
                         <View style={this.styles.bottomContainer}>
-                            <Text style={this.styles.createdBy}>dilana.in</Text>
+                            <Text style={this.styles.createdBy}>www.dilana.in</Text>
                         </View>
                     </View>
                 </View>
