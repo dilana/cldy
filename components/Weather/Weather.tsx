@@ -2,10 +2,10 @@ import * as shape from 'd3-shape';
 import moment from 'moment';
 import PropTypes from 'prop-types';
 import React from 'react';
-import { AsyncStorage, DeviceEventEmitter, Dimensions, StyleSheet, Text, View } from 'react-native';
+import { Dimensions, StyleSheet, Text, View } from 'react-native';
 import 'react-native-gesture-handler';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
-import { Circle, SvgCss, Text as SVGText } from 'react-native-svg';
+import { Circle, G, SvgCss, Text as SVGText } from 'react-native-svg';
 import { LineChart } from 'react-native-svg-charts';
 import { ForecastIcons } from '../../utils/ForecastIcons';
 import { DegreesConverter, PressureConverter, SpeedConverter } from '../../utils/UnitsConverter';
@@ -17,11 +17,11 @@ interface MyState {
     width: number,
     height: number,
     wideEnough: boolean,
-    settings: SettingsInterface
 }
 
 interface MyProps {
-    weather: WeatherInterface
+    weather: WeatherInterface,
+    settings: SettingsInterface
 }
 
 export default class Weather extends React.PureComponent<MyProps, MyState> {
@@ -32,12 +32,6 @@ export default class Weather extends React.PureComponent<MyProps, MyState> {
         width: Dimensions.get('window').width,
         height: Dimensions.get('window').height,
         wideEnough: Dimensions.get('window').width >= 414,
-        settings: {
-            temperature: true,
-            speed: true,
-            pressure: true,
-            time: true,
-        },
     };
     private styles = StyleSheet.create({
         weatherContainer: {
@@ -176,22 +170,6 @@ export default class Weather extends React.PureComponent<MyProps, MyState> {
             fontFamily: 'Lato-Light',
         },
     });
-    private settingsUpdatedSubscription;
-
-    constructor(props) {
-        super(props);
-    }
-
-    componentDidMount() {
-        this.fetchSettings();
-        this.settingsUpdatedSubscription = DeviceEventEmitter.addListener('settings.updated', (event) => this.fetchSettings());
-    }
-
-    componentWillUnmount() {
-        if (this.settingsUpdatedSubscription) {
-            this.settingsUpdatedSubscription.remove();
-        }
-    }
 
     render() {
         if (this.props.weather) {
@@ -218,61 +196,48 @@ export default class Weather extends React.PureComponent<MyProps, MyState> {
             const Decorator = ({x, y, data}) => {
                 return data.map((value, index) => {
                     const key = index;
-                    let cx = x(index);
-                    let cy = y(value);
-                    const r = 3;
+                    const posX = x(index);
+                    const color = '#FFF';
+                    const fontSize = 16;
+
+                    // Dots
+                    let dotY = y(value);
+                    const dotR = 3;
+
+                    // Max temp
+                    let maxY = y(value) - 12;
+                    const maxTemp = Object.values(this.props.weather.forecast)[key]['tempMax'];
+
+                    // Min temp
+                    let minY = y(value) + 24;
+                    const minTemp = Object.values(this.props.weather.forecast)[key]['tempMin'];
 
                     return (
-                        <Circle
-                            key={key}
-                            cx={cx}
-                            cy={cy}
-                            r={r}
-                            stroke={'rgb(255, 255, 255)'}
-                            fill={'rgb(255, 255, 255)'}
-                        />
-                    );
-                });
-            };
-
-            const Decorator2 = ({x, y, data}) => {
-                return data.map((value, index) => {
-                    const key = index;
-                    let xx = x(index);
-                    let yy = y(value) - 12;
-                    const temp = Object.values(this.props.weather.forecast)[key]['tempMax'];
-
-                    return (
-                        <SVGText
-                            key={key}
-                            fill={'#FFFFFF'}
-                            fontSize={'16'}
-                            x={xx}
-                            y={yy}
-                            textAnchor={'middle'}>
-                            {DegreesConverter(temp, this.state.settings.temperature) + '˚'}
-                        </SVGText>
-                    );
-                });
-            };
-
-            const Decorator3 = ({x, y, data}) => {
-                return data.map((value, index) => {
-                    const key = index;
-                    let xx = x(index);
-                    let yy = y(value) + 24;
-                    const temp = Object.values(this.props.weather.forecast)[key]['tempMin'];
-
-                    return (
-                        <SVGText
-                            key={key}
-                            fill={'#FFFFFF'}
-                            fontSize={'16'}
-                            x={xx}
-                            y={yy}
-                            textAnchor={'middle'}>
-                            {DegreesConverter(temp, this.state.settings.temperature) + '˚'}
-                        </SVGText>
+                        <G key={key}>
+                            <Circle
+                                cx={posX}
+                                cy={dotY}
+                                r={dotR}
+                                stroke={color}
+                                fill={color}
+                            />
+                            <SVGText
+                                fill={color}
+                                fontSize={fontSize}
+                                x={posX}
+                                y={maxY}
+                                textAnchor={'middle'}>
+                                {DegreesConverter(maxTemp, this.props.settings.temperature) + '˚'}
+                            </SVGText>
+                            <SVGText
+                                fill={color}
+                                fontSize={fontSize}
+                                x={posX}
+                                y={minY}
+                                textAnchor={'middle'}>
+                                {DegreesConverter(minTemp, this.props.settings.temperature) + '˚'}
+                            </SVGText>
+                        </G>
                     );
                 });
             };
@@ -295,16 +260,16 @@ export default class Weather extends React.PureComponent<MyProps, MyState> {
 
                     <View style={this.styles.tempContainer}>
                         <View style={{height: 120, overflow: 'hidden'}}>
-                            <Text style={this.styles.tempText}>{DegreesConverter(this.props.weather.temperature, this.state.settings.temperature) + '˚'}</Text>
+                            <Text style={this.styles.tempText}>{DegreesConverter(this.props.weather.temperature, this.props.settings.temperature) + '˚'}</Text>
                         </View>
 
                         <View style={this.styles.tempHighLowContainer}>
                             <Text style={this.styles.tempHighLowText}>
-                                {DegreesConverter(this.props.weather.tempMax, this.state.settings.temperature) + '˚'}{this.state.settings.temperature ? 'C' : 'F'}
+                                {DegreesConverter(this.props.weather.tempMax, this.props.settings.temperature) + '˚'}{this.props.settings.temperature ? 'C' : 'F'}
                             </Text>
                             <View style={this.styles.tempHighLowHR}/>
                             <Text style={this.styles.tempHighLowText}>
-                                {DegreesConverter(this.props.weather.tempMin, this.state.settings.temperature) + '˚'}{this.state.settings.temperature ? 'C' : 'F'}
+                                {DegreesConverter(this.props.weather.tempMin, this.props.settings.temperature) + '˚'}{this.props.settings.temperature ? 'C' : 'F'}
                             </Text>
                         </View>
                     </View>
@@ -313,7 +278,7 @@ export default class Weather extends React.PureComponent<MyProps, MyState> {
                         <View style={[this.styles.detailsElement, {marginLeft: 0}]}>
                             <SvgCss xml={WeatherIcons('temperature').xml} width={38} height={38}/>
                             <View style={this.styles.detailsElementTextView}>
-                                <Text style={this.styles.detailsElementText}>{DegreesConverter(this.props.weather.feelsLike, this.state.settings.temperature) + '˚'}</Text>
+                                <Text style={this.styles.detailsElementText}>{DegreesConverter(this.props.weather.feelsLike, this.props.settings.temperature) + '˚'}</Text>
                                 <Text style={this.styles.detailsElementText}>Feels like</Text>
                             </View>
                         </View>
@@ -328,7 +293,7 @@ export default class Weather extends React.PureComponent<MyProps, MyState> {
                             <SvgCss xml={WeatherIcons('wind').xml} width={38} height={38}/>
                             <View style={this.styles.detailsElementTextView}>
                                 <Text style={this.styles.detailsElementText}>
-                                    {SpeedConverter(this.props.weather.wind.speed, this.state.settings.speed)}{this.state.settings.speed ? 'km/h' : 'mph'}
+                                    {SpeedConverter(this.props.weather.wind.speed, this.props.settings.speed)}{this.props.settings.speed ? 'km/h' : 'mph'}
                                 </Text>
                                 <Text style={this.styles.detailsElementText}>{WindDirectionConvert(this.props.weather.wind.deg)}</Text>
                             </View>
@@ -338,19 +303,19 @@ export default class Weather extends React.PureComponent<MyProps, MyState> {
                                 <SvgCss xml={WeatherIcons('pressure').xml} width={38} height={38}/>
                                 <View style={this.styles.detailsElementTextView}>
                                     <Text style={this.styles.detailsElementText}>
-                                        {PressureConverter(this.props.weather.pressure, this.state.settings.pressure)}{this.state.settings.pressure ? 'hPa' : 'inHg'}
+                                        {PressureConverter(this.props.weather.pressure, this.props.settings.pressure)}{this.props.settings.pressure ? 'hPa' : 'inHg'}
                                     </Text>
                                     <Text style={this.styles.detailsElementText}>Pressure</Text>
                                 </View>
                             </View>) :
-                            (<View></View>)
+                            (<View/>)
                         }
                         <View style={[this.styles.detailsElement, {marginRight: 0}]}>
                             <SvgCss xml={WeatherIcons('sunrise').xml} width={38} height={38}/>
                             {displaySunset ?
                                 (<View style={this.styles.detailsElementTextView}>
                                     <Text style={this.styles.detailsElementText}>
-                                        {this.state.settings.time ?
+                                        {this.props.settings.time ?
                                             (moment.unix(this.props.weather.sunset).format('HH:mm')) :
                                             (moment.unix(this.props.weather.sunset).format('hh:mm'))
                                         }
@@ -359,7 +324,7 @@ export default class Weather extends React.PureComponent<MyProps, MyState> {
                                 </View>) :
                                 (<View style={this.styles.detailsElementTextView}>
                                     <Text style={this.styles.detailsElementText}>
-                                        {this.state.settings.time ?
+                                        {this.props.settings.time ?
                                             (moment.unix(this.props.weather.sunrise).format('HH:mm')) :
                                             (moment.unix(this.props.weather.sunrise).format('hh:mm'))
                                         }
@@ -389,8 +354,6 @@ export default class Weather extends React.PureComponent<MyProps, MyState> {
                             curve={shape.curveCatmullRom}
                             contentInset={this.styles.lineChartContentInset}>
                             <Decorator/>
-                            <Decorator2/>
-                            <Decorator3/>
                         </LineChart>
                     </View>
                 </View>
@@ -402,13 +365,5 @@ export default class Weather extends React.PureComponent<MyProps, MyState> {
                 </View>
             );
         }
-    }
-
-    private fetchSettings() {
-        AsyncStorage.getItem('@settings').then((data) => {
-            if (data !== null) {
-                this.setState({settings: JSON.parse(data)});
-            }
-        });
     }
 }

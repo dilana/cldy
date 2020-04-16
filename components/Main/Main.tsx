@@ -1,6 +1,6 @@
 import { SplashScreen } from 'expo';
 import React, { Component } from 'react';
-import { DeviceEventEmitter, Dimensions, StatusBar, StyleSheet, Text, View } from 'react-native';
+import { AsyncStorage, DeviceEventEmitter, Dimensions, StatusBar, StyleSheet, Text, View } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
 import { NavigationInjectedProps, withNavigation } from 'react-navigation';
 import WeatherService from '../../utils/WeatherService';
@@ -16,6 +16,7 @@ interface MyState {
     activeLocation: number,
     weather: Array<WeatherInterface>,
     error: string,
+    settings: SettingsInterface,
 }
 
 class Main extends Component<MyProps & NavigationInjectedProps, MyState> {
@@ -25,6 +26,12 @@ class Main extends Component<MyProps & NavigationInjectedProps, MyState> {
         locations: [],
         weather: undefined,
         error: undefined,
+        settings: {
+            temperature: true,
+            speed: true,
+            pressure: true,
+            time: true,
+        },
     };
 
     private styles = StyleSheet.create({
@@ -61,29 +68,24 @@ class Main extends Component<MyProps & NavigationInjectedProps, MyState> {
             width: Dimensions.get('window').width,
         },
     });
-    private _flatListUpdatedSubscription;
-    private _flatListScrollSubscription;
+    private flatListUpdatedSubscription;
+    private navigationListenerUnsubscribe;
 
     componentDidMount() {
-        this._flatListUpdatedSubscription = DeviceEventEmitter.addListener('flatList.onViewableItemsChanged', (event) => this.onViewableItemsChangedSub(event));
-        this._flatListScrollSubscription = DeviceEventEmitter.addListener('flatList.onScroll', (event) => this.onScrollSub(event));
+        this.flatListUpdatedSubscription = DeviceEventEmitter.addListener('flatList.onViewableItemsChanged', (event) => this.onViewableItemsChangedSub(event));
 
-        this.updateWeatherState().then(() => {
-            // All good
-        }).catch(() => {
-            // First time app open
-            WeatherService.updateCurrentPositionWeather().then(() => this.updateWeatherState()).catch(() => alert('Error getting weather conditions'));
+        if (__DEV__) {
+            this.updateState();
+        }
+
+        this.navigationListenerUnsubscribe = this.props.navigation.addListener('focus', () => {
+            this.updateState();
         });
     }
 
     componentWillUnmount() {
-        if (this._flatListUpdatedSubscription) {
-            this._flatListUpdatedSubscription.remove();
-        }
-
-        if (this._flatListScrollSubscription) {
-            this._flatListScrollSubscription.remove();
-        }
+        this.flatListUpdatedSubscription.remove();
+        this.navigationListenerUnsubscribe();
     }
 
     render() {
@@ -116,10 +118,9 @@ class Main extends Component<MyProps & NavigationInjectedProps, MyState> {
                                     keyExtractor={weather => weather.query}
                                     showsHorizontalScrollIndicator={false}
                                     renderItem={({item, index}) => (
-                                        <Weather weather={item}/>
+                                        <Weather weather={item} settings={this.state.settings}/>
                                     )}
                                     onViewableItemsChanged={this.onViewableItemsChanged}
-                                    onScroll={this.onScroll}
                                 />
                                 <View style={this.styles.dotsContainer}>
                                     {Array.from({length: weather.length}, (v, k) => k).map((prop: any, key) => {
@@ -136,17 +137,19 @@ class Main extends Component<MyProps & NavigationInjectedProps, MyState> {
         );
     }
 
-    private onScroll(event: any) {
-        DeviceEventEmitter.emit('flatList.onScroll', event);
-    }
+    private updateState() {
+        AsyncStorage.getItem('@settings').then((data) => {
+            if (data !== null) {
+                this.setState({settings: JSON.parse(data)});
+            }
+        });
 
-    private onScrollSub(event: any) {
-        const currentIndex = Math.round(event.nativeEvent.contentOffset.x / event.nativeEvent.layoutMeasurement.width);
-
-        // Set location name on scroll
-        // @ts-ignore
-        this.props.navigation.setOptions({title: this.state.weather[currentIndex].city});
-        this.setState({activeLocation: currentIndex});
+        this.updateWeatherState().then(() => {
+            // All good
+        }).catch(() => {
+            // First time app open
+            WeatherService.updateCurrentPositionWeather().then(() => this.updateWeatherState()).catch(() => alert('Error getting weather conditions'));
+        });
     }
 
     private onViewableItemsChanged({viewableItems, changed}) {
