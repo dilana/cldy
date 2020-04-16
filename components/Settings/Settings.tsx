@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { AsyncStorage, DeviceEventEmitter, StatusBar, StyleSheet, Switch, Text, View } from 'react-native';
+import { AsyncStorage, StatusBar, StyleSheet, Switch, Text, View } from 'react-native';
 import 'react-native-gesture-handler';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
 
@@ -67,21 +67,12 @@ export default class Settings extends Component<MyProps, MyState> {
         },
     });
 
-    async componentDidMount() {
-        let settings;
-
-        try {
-            const value = await AsyncStorage.getItem('@settings');
-
-            if (value !== null) {
-                settings = JSON.parse(value);
+    componentDidMount() {
+        AsyncStorage.getItem('@settings').then((data) => {
+            if (data !== null) {
+                this.setState({settings: JSON.parse(data)});
             }
-        } catch (e) {
-        }
-
-        if (settings) {
-            this.setState({settings: settings});
-        }
+        });
     }
 
     render() {
@@ -105,19 +96,16 @@ export default class Settings extends Component<MyProps, MyState> {
                         <Switch trackColor={trackColor}
                                 thumbColor={thumbColor}
                                 ios_backgroundColor={ios_backgroundColor}
-                                onValueChange={async (v: boolean) => {
-                                    try {
-                                        this.setState((prevState: any) => ({
-                                            settings: {
-                                                ...prevState.settings,
-                                                temperature: v,
-                                            },
-                                        }), async () => {
-                                            await AsyncStorage.setItem('@settings', JSON.stringify(this.state.settings));
-                                            DeviceEventEmitter.emit('settings.updated', {});
-                                        });
-                                    } catch (e) {
-                                    }
+                                onValueChange={(v: boolean) => {
+                                    this.setState((prevState: any) => ({
+                                        settings: {
+                                            ...prevState.settings,
+                                            temperature: v,
+                                        },
+                                    }), () => {
+                                        AsyncStorage.setItem('@settings', JSON.stringify(this.state.settings));
+                                    });
+
                                 }}
                                 value={this.state.settings.temperature}/>
                     </View>
@@ -130,19 +118,15 @@ export default class Settings extends Component<MyProps, MyState> {
                         <Switch trackColor={trackColor}
                                 thumbColor={thumbColor}
                                 ios_backgroundColor={ios_backgroundColor}
-                                onValueChange={async (v: boolean) => {
-                                    try {
-                                        this.setState((prevState: any) => ({
-                                            settings: {
-                                                ...prevState.settings,
-                                                speed: v,
-                                            },
-                                        }), async () => {
-                                            await AsyncStorage.setItem('@settings', JSON.stringify(this.state.settings));
-                                            DeviceEventEmitter.emit('settings.updated', {});
-                                        });
-                                    } catch (e) {
-                                    }
+                                onValueChange={(v: boolean) => {
+                                    this.setState((prevState: any) => ({
+                                        settings: {
+                                            ...prevState.settings,
+                                            speed: v,
+                                        },
+                                    }), () => {
+                                        AsyncStorage.setItem('@settings', JSON.stringify(this.state.settings));
+                                    });
                                 }}
                                 value={this.state.settings.speed}/>
                     </View>
@@ -155,19 +139,15 @@ export default class Settings extends Component<MyProps, MyState> {
                         <Switch trackColor={trackColor}
                                 thumbColor={thumbColor}
                                 ios_backgroundColor={ios_backgroundColor}
-                                onValueChange={async (v: boolean) => {
-                                    try {
-                                        this.setState((prevState: any) => ({
-                                            settings: {
-                                                ...prevState.settings,
-                                                pressure: v,
-                                            },
-                                        }), async () => {
-                                            await AsyncStorage.setItem('@settings', JSON.stringify(this.state.settings));
-                                            DeviceEventEmitter.emit('settings.updated', {});
-                                        });
-                                    } catch (e) {
-                                    }
+                                onValueChange={(v: boolean) => {
+                                    this.setState((prevState: any) => ({
+                                        settings: {
+                                            ...prevState.settings,
+                                            pressure: v,
+                                        },
+                                    }), () => {
+                                        AsyncStorage.setItem('@settings', JSON.stringify(this.state.settings));
+                                    });
                                 }}
                                 value={this.state.settings.pressure}/>
                     </View>
@@ -180,19 +160,15 @@ export default class Settings extends Component<MyProps, MyState> {
                         <Switch trackColor={trackColor}
                                 thumbColor={thumbColor}
                                 ios_backgroundColor={ios_backgroundColor}
-                                onValueChange={async (v: boolean) => {
-                                    try {
-                                        this.setState((prevState: any) => ({
-                                            settings: {
-                                                ...prevState.settings,
-                                                time: v,
-                                            },
-                                        }), async () => {
-                                            await AsyncStorage.setItem('@settings', JSON.stringify(this.state.settings));
-                                            DeviceEventEmitter.emit('settings.updated', {});
-                                        });
-                                    } catch (e) {
-                                    }
+                                onValueChange={(v: boolean) => {
+                                    this.setState((prevState: any) => ({
+                                        settings: {
+                                            ...prevState.settings,
+                                            time: v,
+                                        },
+                                    }), () => {
+                                        AsyncStorage.setItem('@settings', JSON.stringify(this.state.settings));
+                                    });
                                 }}
                                 value={this.state.settings.time}/>
                     </View>
