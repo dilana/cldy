@@ -40,11 +40,70 @@ export default class Locations extends React.Component<MyProps, MyState> {
             backgroundColor: '#000000',
             paddingTop: getStatusBarHeight(false) + 40 + 15,
         },
+        flatListContainer: {
+            flex: 1,
+            backgroundColor: '#000000',
+        },
+        flatListItemContainer: {
+            flex: 1,
+            flexDirection: 'row',
+            paddingVertical: 15,
+            borderBottomColor: 'rgba(255, 255, 255, 0.1)',
+            borderBottomWidth: 1,
+        },
+        flatListItemCityContainer: {
+            flex: 1,
+            flexDirection: 'column',
+            paddingLeft: 10,
+            alignItems: 'flex-start',
+            justifyContent: 'center',
+        },
+        flatListItemCityName: {
+            color: '#FFF',
+            fontSize: 24,
+            lineHeight: 28,
+            fontFamily: 'Lato-Regular',
+        },
+        flatListItemCountryName: {
+            color: '#FFF',
+            fontSize: 14,
+            lineHeight: 18,
+            fontFamily: 'Lato-Regular',
+        },
+        flatListItemIconContainer: {
+            flex: 0,
+            justifyContent: 'center',
+            paddingHorizontal: 10,
+        },
+        flatListItemTemperature: {
+            color: '#FFF',
+            fontSize: 44,
+            flex: 0,
+            textAlign: 'right',
+            paddingRight: 10,
+            width: 90,
+            fontFamily: 'Lato-Light',
+        },
+        svgBackground: {
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+        },
     });
     private width = Dimensions.get('window').width;
     private navigationListenerUnsubscribe;
 
     componentDidMount(): void {
+        if (__DEV__) {
+            this.updateState();
+        }
+
+        this.navigationListenerUnsubscribe = this.props.navigation.addListener('focus', () => {
+            this.updateState();
+        });
+
         this.props.navigation.setOptions({
             headerRight: () => {
                 return (
@@ -53,10 +112,6 @@ export default class Locations extends React.Component<MyProps, MyState> {
                     </View>
                 );
             },
-        });
-
-        this.navigationListenerUnsubscribe = this.props.navigation.addListener('focus', () => {
-            this.updateState();
         });
     }
 
@@ -80,40 +135,40 @@ export default class Locations extends React.Component<MyProps, MyState> {
                     <Dialog.Button label="OK" onPress={this.handleAddLocation}/>
                 </Dialog.Container>
 
-                <View style={{flex: 1}}>
+                <View style={this.styles.flatListContainer}>
                     <FlatList
-                        style={{flex: 1}}
+                        style={this.styles.flatListContainer}
                         data={this.state.weather}
                         renderItem={({item}) => {
                             return (
-                                <View style={{flex: 1, overflow: 'hidden'}}>
+                                <View style={[this.styles.flatListContainer, {overflow: 'hidden'}]}>
                                     <SvgCss xml={
                                         `
-                                         <svg width="${this.width}" height="80" viewBox="0 0 ${this.width} 80">
+                                         <svg width="${this.width}" height="90" viewBox="0 0 ${this.width} 90">
                                             <defs>
                                                 <linearGradient id="grad2" x1="0%" y1="0%" x2="0%" y2="100%">
                                                     <stop offset="0%" style="stop-color:${weatherConditions(item).gradientColorStart}; stop-opacity:1" />
                                                     <stop offset="80%" style="stop-color:${weatherConditions(item).gradientColorEnd}; stop-opacity:1" />
                                                 </linearGradient>
                                             </defs>
-                                            <rect width="${this.width}" height="80" fill="url(#grad2)" />
+                                            <rect width="${this.width}" height="90" fill="url(#grad2)" />
                                         </svg>
                                         `
-                                    } style={{position: 'absolute', top: 0, left: 0, right: 0, bottom: 0}}/>
+                                    } style={this.styles.svgBackground}/>
 
-                                    <View style={{flex: 1, flexDirection: 'row', paddingVertical: 10, borderBottomColor: 'rgba(255, 255, 255, 0.1)', borderBottomWidth: 1}}>
-                                        <View style={{flex: 1, flexDirection: 'column', paddingLeft: 10, alignItems: 'flex-start', justifyContent: 'center'}}>
-                                            <Text style={{color: '#FFF', fontSize: 24, lineHeight: 26, fontFamily: 'Lato-Regular'}}>
+                                    <View style={this.styles.flatListItemContainer}>
+                                        <View style={this.styles.flatListItemCityContainer}>
+                                            <Text style={this.styles.flatListItemCityName}>
                                                 {item.city}
                                             </Text>
-                                            <Text style={{color: '#FFF', fontSize: 12, lineHeight: 14, fontFamily: 'Lato-Regular'}}>
+                                            <Text style={this.styles.flatListItemCountryName}>
                                                 {item.country}
                                             </Text>
                                         </View>
-                                        <View style={{flex: 0, justifyContent: 'center', paddingHorizontal: 10}}>
+                                        <View style={this.styles.flatListItemIconContainer}>
                                             <SvgCss xml={weatherConditions(item).icon} width={40} height={40}/>
                                         </View>
-                                        <Text style={{color: '#FFF', fontSize: 40, flex: 0, textAlign: 'right', paddingRight: 10, width: 90, fontFamily: 'Lato-Light'}}>
+                                        <Text style={this.styles.flatListItemTemperature}>
                                             {DegreesConverter(item.temperature, this.state.settings.temperature) + '˚'}
                                         </Text>
                                     </View>
@@ -128,21 +183,17 @@ export default class Locations extends React.Component<MyProps, MyState> {
     }
 
     private updateState() {
-        AsyncStorage.getItem('@settings').then((data) => {
-            if (data !== null) {
-                this.setState({settings: JSON.parse(data)});
+        AsyncStorage.multiGet(['@settings', '@weather', '@locations']).then((data) => {
+            if (data[0][1] !== null) {
+                this.setState({settings: JSON.parse(data[0][1])});
             }
-        });
 
-        AsyncStorage.getItem('@locations').then((data) => {
-            if (data !== null) {
-                this.setState({locations: JSON.parse(data)});
+            if (data[1][1] !== null) {
+                this.setState({weather: JSON.parse(data[1][1])});
             }
-        });
 
-        AsyncStorage.getItem('@weather').then((data) => {
-            if (data !== null) {
-                this.setState({weather: JSON.parse(data)});
+            if (data[2][1] !== null) {
+                this.setState({locations: JSON.parse(data[2][1])});
             }
         });
     }
@@ -158,6 +209,7 @@ export default class Locations extends React.Component<MyProps, MyState> {
     private handleAddLocation = () => {
         WeatherService.addLocation(this.state.value).then(() => {
             this.setState({dialogVisible: false});
+            this.updateState();
         }).catch(() => {
             alert('Location can\'t be found!');
         });
