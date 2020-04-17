@@ -1,5 +1,5 @@
 import { createDrawerNavigator } from '@react-navigation/drawer';
-import { NavigationContainer } from '@react-navigation/native';
+import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { SplashScreen } from 'expo';
 import * as Font from 'expo-font';
@@ -27,6 +27,14 @@ export default class App extends React.Component {
             width: 240,
         },
     });
+    private MyTheme = {
+        ...DefaultTheme,
+        colors: {
+            ...DefaultTheme.colors,
+            background: '#000000',
+        },
+    };
+
     private MainStack = () => {
         return (
             <Stack.Navigator>
@@ -99,7 +107,7 @@ export default class App extends React.Component {
         if (!this.state.isLoading) {
             return (
                 <SafeAreaProvider>
-                    <NavigationContainer>
+                    <NavigationContainer theme={this.MyTheme}>
                         <Drawer.Navigator initialRouteName="Home" drawerStyle={this.styles.drawer} drawerContent={props => <CustomDrawer {...props} />} backBehavior='initialRoute' hideStatusBar={false}>
                             <Drawer.Screen name="Home" component={this.MainStack}/>
                             <Drawer.Screen name="Settings" component={this.SettingsStack}/>
