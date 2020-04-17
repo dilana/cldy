@@ -8,9 +8,14 @@
       "ios",
       "android"
     ],
+    "githubUrl": "https://github.com/dilana/cldy",
     "version": "1.0.0",
     "orientation": "portrait",
+    "primaryColor": "#52A5DA",
     "icon": "./assets/icon.png",
+    "facebookAppId": "688737578560910",
+    "facebookAutoInitEnabled": true,
+    "facebookAutoLogAppEventsEnabled": true,
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
@@ -25,11 +30,18 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "in.dilana.cldy",
-      "buildNumber": "1.0.0"
+      "buildNumber": "1.0.0",
+      "backgroundColor": "#000000"
     },
     "android": {
       "package": "in.dilana.cldy",
-      "versionCode": 1
+      "versionCode": 1,
+      "backgroundColor": "#000000",
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "VIBRATE"
+      ]
     },
     "description": "Cldy weather app"
   }
