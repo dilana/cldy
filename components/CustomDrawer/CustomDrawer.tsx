@@ -1,6 +1,6 @@
 import { DrawerContentScrollView } from '@react-navigation/drawer';
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet, Text, View } from 'react-native';
 import 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-navigation';
 import CustomDrawerItem from './CustomDrawerItem';
@@ -17,7 +17,6 @@ export default class CustomDrawer extends React.Component<{ navigation: any, sta
             justifyContent: 'flex-start',
             backgroundColor: '#010101',
             width: '100%',
-            // paddingTop: '10%',
         },
         containerInner: {
             flex: 1,
@@ -26,6 +25,11 @@ export default class CustomDrawer extends React.Component<{ navigation: any, sta
         containerInnerLogo: {
             flex: 0,
             backgroundColor: '#010101',
+        },
+        containerInnerLogoImg: {
+            width: 240,
+            height: 52,
+            marginVertical: 10
         },
         navigationContainer: {
             flex: 1,
@@ -51,10 +55,7 @@ export default class CustomDrawer extends React.Component<{ navigation: any, sta
                 <View style={this.styles.container}>
                     <View style={this.styles.containerInner}>
                         <View style={this.styles.containerInnerLogo}>
-                            <Text style={{color: '#FFF'}}>LOGOTO tuka</Text>
-                            <Text style={{color: '#FFF'}}>LOGOTO tuka</Text>
-                            <Text style={{color: '#FFF'}}>LOGOTO tuka</Text>
-                            <Text style={{color: '#FFF'}}>LOGOTO tuka</Text>
+                            <Image style={this.styles.containerInnerLogoImg} source={require('../../assets/logo.png')}/>
                         </View>
 
                         <View style={this.styles.navigationContainer}>
