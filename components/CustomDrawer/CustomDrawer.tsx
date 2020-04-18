@@ -27,9 +27,9 @@ export default class CustomDrawer extends React.Component<{ navigation: any, sta
             backgroundColor: '#010101',
         },
         containerInnerLogoImg: {
-            width: 240,
-            height: 52,
-            marginVertical: 10
+            width: 240 * 0.666,
+            height: 52 * 0.666,
+            marginVertical: 10,
         },
         navigationContainer: {
             flex: 1,
