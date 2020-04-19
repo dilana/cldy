@@ -249,5 +249,5 @@ Temporary Items
 .idea
 
 ./utils/WeatherAPIKey.tsx
-./deployment_cert.der
-./deployment_cert.jks
+deployment_cert.der
+deployment_cert.jks
