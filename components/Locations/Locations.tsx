@@ -1,10 +1,11 @@
 import React, { SyntheticEvent } from 'react';
-import { AsyncStorage, Dimensions, FlatList, StatusBar, StyleSheet, Text, View } from 'react-native';
+import { AsyncStorage, Dimensions, StatusBar, StyleSheet, Text, TouchableHighlight, View } from 'react-native';
 import Dialog from 'react-native-dialog';
 import { Icon } from 'react-native-elements';
 import 'react-native-gesture-handler';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
 import { SvgCss } from 'react-native-svg';
+import { SwipeListView } from 'react-native-swipe-list-view';
 import { DegreesConverter } from '../../utils/UnitsConverter';
 import { weatherConditions } from '../../utils/WeatherConditions';
 import WeatherService from '../../utils/WeatherService';
@@ -91,6 +92,29 @@ export default class Locations extends React.Component<MyProps, MyState> {
             right: 0,
             bottom: 0,
         },
+        backTextWhite: {
+            color: '#FFF',
+            fontFamily: 'Lato-Regular',
+            fontSize: 16,
+        },
+        backRightTouchable: {
+            flex: 1,
+        },
+        backRightContainer: {
+            backgroundColor: '#FE3B32',
+            flex: 1,
+            alignItems: 'center',
+            justifyContent: 'center',
+        },
+        backRightBtn: {
+            alignItems: 'center',
+            justifyContent: 'center',
+            position: 'absolute',
+            top: 0,
+            bottom: 5,
+            right: 0,
+            width: 75,
+        },
     });
     private width = Dimensions.get('window').width;
     private navigationListenerUnsubscribe;
@@ -136,45 +160,54 @@ export default class Locations extends React.Component<MyProps, MyState> {
                 </Dialog.Container>
 
                 <View style={this.styles.flatListContainer}>
-                    <FlatList
-                        style={this.styles.flatListContainer}
+                    <SwipeListView
+                        useFlatList={true}
                         data={this.state.weather}
-                        renderItem={({item}) => {
-                            return (
-                                <View style={[this.styles.flatListContainer, {overflow: 'hidden'}]}>
-                                    <SvgCss xml={
-                                        `
+                        renderItem={(rowData) => (
+                            <View style={[this.styles.flatListContainer, {overflow: 'hidden'}]} key={rowData.index}>
+                                <SvgCss xml={
+                                    `
                                          <svg width="${this.width}" height="90" viewBox="0 0 ${this.width} 90">
                                             <defs>
                                                 <linearGradient id="grad2" x1="0%" y1="0%" x2="0%" y2="100%">
-                                                    <stop offset="0%" style="stop-color:${weatherConditions(item).gradientColorStart}; stop-opacity:1" />
-                                                    <stop offset="80%" style="stop-color:${weatherConditions(item).gradientColorEnd}; stop-opacity:1" />
+                                                    <stop offset="0%" style="stop-color:${weatherConditions(rowData.item).gradientColorStart}; stop-opacity:1" />
+                                                    <stop offset="80%" style="stop-color:${weatherConditions(rowData.item).gradientColorEnd}; stop-opacity:1" />
                                                 </linearGradient>
                                             </defs>
                                             <rect width="${this.width}" height="90" fill="url(#grad2)" />
                                         </svg>
                                         `
-                                    } style={this.styles.svgBackground}/>
+                                } style={this.styles.svgBackground}/>
 
-                                    <View style={this.styles.flatListItemContainer}>
-                                        <View style={this.styles.flatListItemCityContainer}>
-                                            <Text style={this.styles.flatListItemCityName}>
-                                                {item.city}
-                                            </Text>
-                                            <Text style={this.styles.flatListItemCountryName}>
-                                                {item.country}
-                                            </Text>
-                                        </View>
-                                        <View style={this.styles.flatListItemIconContainer}>
-                                            <SvgCss xml={weatherConditions(item).icon} width={40} height={40}/>
-                                        </View>
-                                        <Text style={this.styles.flatListItemTemperature}>
-                                            {DegreesConverter(item.temperature, this.state.settings.temperature) + '˚'}
+                                <View style={this.styles.flatListItemContainer}>
+                                    <View style={this.styles.flatListItemCityContainer}>
+                                        <Text style={this.styles.flatListItemCityName}>
+                                            {rowData.item.city}
+                                        </Text>
+                                        <Text style={this.styles.flatListItemCountryName}>
+                                            {rowData.item.country}
                                         </Text>
                                     </View>
+                                    <View style={this.styles.flatListItemIconContainer}>
+                                        <SvgCss xml={weatherConditions(rowData.item).icon} width={40} height={40}/>
+                                    </View>
+                                    <Text style={this.styles.flatListItemTemperature}>
+                                        {DegreesConverter(rowData.item.temperature, this.state.settings.temperature) + '˚'}
+                                    </Text>
                                 </View>
-                            );
-                        }}
+                            </View>
+                        )}
+                        renderHiddenItem={(rowData, rowMap) => (
+                            <TouchableHighlight onPress={() => this.handleDeleteLocation(rowMap, rowData)} style={this.styles.backRightTouchable}>
+                                <View style={this.styles.backRightContainer}>
+                                    <View style={this.styles.backRightBtn}>
+                                        <Text style={this.styles.backTextWhite}>Delete</Text>
+                                    </View>
+                                </View>
+                            </TouchableHighlight>
+                        )}
+                        disableRightSwipe
+                        rightOpenValue={-75}
                         keyExtractor={item => item.query}
                     />
                 </View>
@@ -214,4 +247,18 @@ export default class Locations extends React.Component<MyProps, MyState> {
             alert('Location can\'t be found!');
         });
     };
+
+    private handleDeleteLocation(rowMap, rowData) {
+        rowMap[rowData.item.query].closeRow();
+
+        if (rowData.item.query === 'geolocation') {
+            return;
+        }
+
+        this.setState({weather: this.state.weather.filter((itm) => itm.query !== rowData.item.query)}, () => {
+            AsyncStorage.setItem('@weather', JSON.stringify(this.state.weather)).then((data) => {
+                // deleted
+            });
+        });
+    }
 }
