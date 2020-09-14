@@ -249,5 +249,9 @@ Temporary Items
 .idea
 
 ./utils/WeatherAPIKey.tsx
+cldy.keystore
+cldy_upload_cert.pem
 deployment_cert.der
-deployment_cert.jks
+output.zip
+pepk.jar
+upload_cert.der
